@@ -17,10 +17,11 @@ class RolePermission {
      */
     public $roleId;
 
+
     /**
-     * @ORM\Column(name="permission_id",type="integer")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Permission")
      */
-    public $permissionId;
+    private $permission;
 
     /**
      * @ORM\Column(name="created_on",type="bigint")
@@ -59,22 +60,6 @@ class RolePermission {
     public function setRoleId($roleId): void
     {
         $this->roleId = $roleId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPermissionId()
-    {
-        return $this->permissionId;
-    }
-
-    /**
-     * @param mixed $permissionId
-     */
-    public function setPermissionId($permissionId): void
-    {
-        $this->permissionId = $permissionId;
     }
 
     /**
@@ -123,6 +108,22 @@ class RolePermission {
     public function setUpdatedOn($updatedOn): void
     {
         $this->updatedOn = $updatedOn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPermission()
+    {
+        return $this->permission;
+    }
+
+    /**
+     * @param mixed $permission
+     */
+    public function setPermission($permission): void
+    {
+        $this->permission = $permission;
     }
 
 

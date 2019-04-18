@@ -29,9 +29,9 @@ class UserRepository extends ServiceEntityRepository
      * @param string $userId
      * @return UserRole
      */
-    public function findByUserId(string $userId): UserRole
+    public function findByUser(string $userId): User
     {
-        return $this->findOneBy(['id' => $userId]);
+        return $this->findOneBy(['userId' => $userId]);
     }
 
     /**

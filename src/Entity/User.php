@@ -1,5 +1,6 @@
 <?php 
 namespace App\Entity;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
@@ -23,6 +24,19 @@ class  User {
      *
      */
     public $userId;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Role")
+     * @ORM\JoinTable(name="user_role",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="user_id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
+     *      )
+     */
+    public $roles;
+
+    public function __construct() {
+        $this->roles = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * @ORM\Column(name="is_deleted",type="boolean")
@@ -147,6 +161,22 @@ class  User {
     public function setUpdatedOn($updatedOn): void
     {
         $this->updatedOn = $updatedOn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRoles(): Collection
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @param mixed $roles
+     */
+    public function setRoles($roles): void
+    {
+        $this->roles = $roles;
     }
 
 

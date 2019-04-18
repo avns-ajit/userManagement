@@ -1,5 +1,6 @@
 <?php 
 namespace App\Entity;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
@@ -16,6 +17,18 @@ class Role {
      * @ORM\Column(type="string", length=100)
      */
     public $name;
+
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Permission")
+     * @ORM\JoinTable(name="role_permission",
+     *      joinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")})
+     */
+    public $permissions;
+
+    public function __construct() {
+        $this->permissions = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * @ORM\Column(name="created_on",type="bigint")
@@ -102,6 +115,22 @@ class Role {
     public function setUpdatedOn($updatedOn): void
     {
         $this->updatedOn = $updatedOn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPermissions(): Collection
+    {
+        return $this->permissions;
+    }
+
+    /**
+     * @param mixed $permissions
+     */
+    public function setPermissions($permissions): void
+    {
+        $this->permissions = $permissions;
     }
 
 

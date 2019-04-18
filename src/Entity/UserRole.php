@@ -1,6 +1,8 @@
 <?php 
 namespace App\Entity;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="user_role")
@@ -20,9 +22,9 @@ class UserRole {
     public $userId;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\RolePermission", mappedBy="role_id")
+     * @ORM\Column(name="role_id",type="integer")
      */
-    public $rolePermission;
+    public $roleId;
 
     /**
      * @ORM\Column(name="created_on",type="bigint")
@@ -111,20 +113,21 @@ class UserRole {
         $this->updatedOn = $updatedOn;
     }
 
+
     /**
      * @return mixed
      */
-    public function getRolePermission(): RolePermission
+    public function getRoleId()
     {
-        return $this->rolePermission;
+        return $this->roleId;
     }
 
     /**
-     * @param mixed $rolePermission
+     * @param mixed $roleId
      */
-    public function setRolePermission($rolePermission): void
+    public function setRoleId($roleId): void
     {
-        $this->rolePermission = $rolePermission;
+        $this->roleId = $roleId;
     }
 
 
