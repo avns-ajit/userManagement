@@ -5,7 +5,6 @@ namespace App\Repository;
 
 
 use App\Entity\User;
-use App\Entity\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;

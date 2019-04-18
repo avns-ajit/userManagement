@@ -7,8 +7,11 @@ namespace App\Model;
 use App\DTO\UserDTO;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Entity\UserRole;
 use App\Repository\UserRepository;
+use App\Repository\UserRoleRepository;
 use App\Repository\RoleRepository;
+use App\Util\UserManagementUtility;
 use Doctrine\Common\Collections\ArrayCollection;
 use Ramsey\Uuid\Uuid;
 
@@ -24,10 +27,22 @@ class UserManager implements UserManagerInterface
      */
     private $roleRespository;
 
-    public function __construct(UserRepository $userRepository,RoleRepository $roleRepository)
+    /**
+     * @var UserManagementUtility
+     */
+    private $userManagementUtility;
+
+    /**
+     * @var UserRoleRepository
+     */
+    private $userRoleRepository;
+
+    public function __construct(UserRepository $userRepository,RoleRepository $roleRepository,UserRoleRepository $userRoleRepository,UserManagementUtility $userManagementUtility)
     {
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
+        $this->userManagementUtility = $userManagementUtility;
+        $this->userRoleRepository = $userRoleRepository;
 
     }
 
@@ -37,28 +52,55 @@ class UserManager implements UserManagerInterface
      */
     public function createUser(UserDTO $userDTO)
     {
-
-        $data=$this->userRepository->findByUser($userDTO->getUser());
-        $array = $data->getRoles()->getValues();
-        print_r($array) ;
-        $roleIds = array();
-        foreach ($data->getRoles() as $key => $value) {
-            $roleId=$value->{'id'};
-            $roleIds[] = $roleId;
+        $permissions=$this->userManagementUtility->getUserPermissions($userDTO->getInitiator());
+        foreach ($permissions as $key => $value){
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction($userDTO->getRole(),"ADD");
+            if ($initiatorAction==$value->{'name'}){
+                $this->saveDetails($userDTO);
+            }
         }
-        $data=$this->roleRepository->findPermissionsForRoles($roleIds);
-        foreach ($array as $value){
-            $data1 = $data->getPermissions();
-            print_r($data1) ;
-        }
-
-//        $user= new User();
-//        $user->setCreatedOn(time());
-//        $user->setUpdatedBy("System");
-//        $user->setUserId(Uuid::uuid1());
-//        $user->setName($userDTO->getName());
-//        $this->userRepository->save($user);
         return $this;
+    }
+
+    private function saveDetails($userDTO) :void
+    {
+        $userId=Uuid::uuid1();
+        $this->saveUser($userDTO, $userId);
+        $this->saveUserRole($userDTO, $userId);
+    }
+
+    /**
+     * @param $userDTO
+     * @param \Ramsey\Uuid\UuidInterface $userId
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    private function saveUser($userDTO, $userId): void
+    {
+        $user = new User();
+        $user->setCreatedOn(time());
+        $user->setUpdatedBy($userDTO->getInitiator());
+        $user->setUserId($userId);
+        $user->setName($userDTO->getName());
+        $this->userRepository->save($user);
+    }
+
+    /**
+     * @param $userDTO
+     * @param \Ramsey\Uuid\UuidInterface $userId
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    private function saveUserRole($userDTO,$userId): void
+    {
+        //TODO: role Details can be cached to avoid DB calls.
+        $role = $this->roleRepository->findByName($userDTO->getRole());
+        $userRole = new UserRole();
+        $userRole->setCreatedOn(time());
+        $userRole->setUpdatedBy($userDTO->getInitiator());
+        $userRole->setRoleId($role->getId());
+        $userRole->setUserId($userId);
+        $this->userRoleRepository->save($userRole);
     }
 
 }

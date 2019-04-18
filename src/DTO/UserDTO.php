@@ -20,10 +20,17 @@ final class UserDTO
 
     /**
      * @Type("string")
+     * @Assert\NotNull(message="request initiator id cannot be null")
+     * @Assert\NotBlank(message="request initiator id cannot be empty")
+     */
+    private $initiator;
+
+    /**
+     * @Type("string")
      * @Assert\NotNull(message="user id cannot be null")
      * @Assert\NotBlank(message="user id cannot be empty")
      */
-    private $user;
+    private $role;
 
     /**
      * @return mixed
@@ -33,17 +40,44 @@ final class UserDTO
         return $this->name;
     }
 
-    public function __toString(){
-        return $this->getName();
+    /**
+     * @param mixed $name
+     */
+    public function setName($name): void
+    {
+        $this->name = $name;
     }
 
     /**
      * @return mixed
      */
-    public function getUser()
+    public function getInitiator()
     {
-        return $this->user;
+        return $this->initiator;
     }
 
+    /**
+     * @param mixed $initiator
+     */
+    public function setInitiator($initiator): void
+    {
+        $this->initiator = $initiator;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    /**
+     * @param mixed $role
+     */
+    public function setRole($role): void
+    {
+        $this->role = $role;
+    }
 
 }

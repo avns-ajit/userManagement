@@ -2,9 +2,14 @@
 namespace App\Entity;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\NamedQuery;
+use Doctrine\ORM\Mapping\NamedQueries;
 /**
  * @ORM\Entity
  * @ORM\Table(name="role")
+ * @ORM\NamedQueries({
+ *     @NamedQuery(name="getPermissions", query="select p from App\Entity\Role r, App\Entity\Permission p, App\Entity\RolePermission rp where r.id in(:roles) and r.id=rp.roleId and rp.permissionId=p.id")
+ * })
  */
 class Role {
     /**
@@ -17,21 +22,6 @@ class Role {
      * @ORM\Column(type="string", length=100)
      */
     public $name;
-
-
-    /**
-     * @ORM\ManyToMany(targetEntity="Permission")
-     * @ORM\JoinTable(name="role_permission",
-     *      joinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="permission_id", referencedColumnName="id")}
-     *      )
-     */
-    public $permissions;
-
-    public function __construct() {
-        $this->permissions = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
 
     /**
      * @ORM\Column(name="created_on",type="bigint")
@@ -119,22 +109,5 @@ class Role {
     {
         $this->updatedOn = $updatedOn;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getPermissions(): Collection
-    {
-        return $this->permissions;
-    }
-
-    /**
-     * @param mixed $permissions
-     */
-    public function setPermissions($permissions): void
-    {
-        $this->permissions = $permissions;
-    }
-
 
 }

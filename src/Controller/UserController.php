@@ -30,19 +30,6 @@ class UserController extends AbstractController
     {
         $this->userManager = $userManager;
     }
-    /**
-     *  @Route("/all")
-     */
-    public function listAction()
-    {
-        $number = random_int(0, 100);
-
-        $response = new Response(json_encode($number));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
-
-    }
 
     /**
      * @Route("/add")
@@ -57,12 +44,10 @@ class UserController extends AbstractController
         $this->userManager->createUser($userDTO);
         $response = new Response(json_encode($userDTO->getName()));
         $response->headers->set('Content-Type', 'application/json');
-
         return $response;
-
     }
 
-    protected function validationFailedResponse($errors)
+    private function validationFailedResponse($errors)
     {
         $errorsString = (string) $errors;
         $response = new Response($errorsString);
