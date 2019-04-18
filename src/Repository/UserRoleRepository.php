@@ -6,7 +6,7 @@ use App\Entity\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-class UserRoleRespository extends ServiceEntityRepository
+class UserRoleRepository extends ServiceEntityRepository
 {
 
     /**

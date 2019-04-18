@@ -22,13 +22,16 @@ class Role {
     /**
      * @ORM\ManyToMany(targetEntity="Permission")
      * @ORM\JoinTable(name="role_permission",
-     *      joinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")})
+     *      joinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="permission_id", referencedColumnName="id")}
+     *      )
      */
     public $permissions;
 
     public function __construct() {
         $this->permissions = new \Doctrine\Common\Collections\ArrayCollection();
     }
+
 
     /**
      * @ORM\Column(name="created_on",type="bigint")

@@ -15,7 +15,7 @@ class Permission {
     /**
      * @ORM\Column(type="string", length=255)
      */
-    public $permission;
+    public $name;
 
     /**
      * @ORM\Column(name="created_on",type="bigint")
@@ -40,22 +40,6 @@ class Permission {
         return $this->id;
     }
 
-
-    /**
-     * @return mixed
-     */
-    public function getPermission()
-    {
-        return $this->permission;
-    }
-
-    /**
-     * @param mixed $permission
-     */
-    public function setPermission($permission): void
-    {
-        $this->permission = $permission;
-    }
 
     /**
      * @return mixed
@@ -103,6 +87,22 @@ class Permission {
     public function setUpdatedOn($updatedOn): void
     {
         $this->updatedOn = $updatedOn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name): void
+    {
+        $this->name = $name;
     }
 
 

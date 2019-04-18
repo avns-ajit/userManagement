@@ -4,7 +4,10 @@
 namespace App\Repository;
 
 
+use App\Entity\Role;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use mysql_xdevapi\Collection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class RoleRepository extends ServiceEntityRepository
@@ -18,14 +21,25 @@ class RoleRepository extends ServiceEntityRepository
         );
     }
 
+    /**
+     * @param array $roles
+     * @return Role
+     */
+    public function findPermissionsForRoles(array $roles): array
+    {
+        $implodedRoles = implode(',', $roles);
+        $qb = $this->createQueryBuilder('a');
+        return  $qb
+            ->select('a')
+            ->Where('a.id IN (:roles)')
+            ->setParameter('roles', $implodedRoles)
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function findByRole(string $roleIds): Role
+    {
+        return $this->findOneBy(['id' => $roleIds]);
+    }
 
-
-$implodedRoles = implode(',', $roles);
-
-$qb = $this->createQueryBuilder('u')
-->select('u')
-->where('u.username is not null')
-->andWhere('u.roles IN (:roles)')
-->setParameter('roles', $implodedRoles);
 }

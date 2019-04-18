@@ -17,11 +17,11 @@ class RolePermission {
      */
     public $roleId;
 
-
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Permission")
+     * @ORM\Column(name="permission_id",type="integer")
      */
-    private $permission;
+    public $permissionId;
+
 
     /**
      * @ORM\Column(name="created_on",type="bigint")
@@ -113,17 +113,17 @@ class RolePermission {
     /**
      * @return mixed
      */
-    public function getPermission()
+    public function getPermissionId()
     {
-        return $this->permission;
+        return $this->permissionId;
     }
 
     /**
-     * @param mixed $permission
+     * @param mixed $permissionId
      */
-    public function setPermission($permission): void
+    public function setPermissionId($permissionId): void
     {
-        $this->permission = $permission;
+        $this->permissionId = $permissionId;
     }
 
 
