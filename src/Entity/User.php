@@ -13,29 +13,45 @@ class  User {
      */
     public $id;
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=255)
      *
      */
     public $name;
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    public $isDeleted;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="user_id",type="string", length=255)
+     *
      */
-    public $createdBy;
+    public $userId;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="is_deleted",type="boolean")
+     */
+    public $isDeleted=false;
+
+    /**
+     * @ORM\Column(name="created_on",type="bigint")
+     */
+    public $createdOn;
+
+    /**
+     * @ORM\Column(name="updated_by",type="string", length=100)
      */
     public $updatedBy;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(name="updated_on",type="bigint",nullable=true)
      */
-    public $updatedTimestamp;
+    public $updatedOn;
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
 
     /**
      * @return mixed
@@ -51,6 +67,22 @@ class  User {
     public function setName($name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId): void
+    {
+        $this->userId = $userId;
     }
 
     /**
@@ -72,17 +104,17 @@ class  User {
     /**
      * @return mixed
      */
-    public function getCreatedBy()
+    public function getCreatedOn()
     {
-        return $this->createdBy;
+        return $this->createdOn;
     }
 
     /**
-     * @param mixed $createdBy
+     * @param mixed $createdOn
      */
-    public function setCreatedBy($createdBy): void
+    public function setCreatedOn($createdOn): void
     {
-        $this->createdBy = $createdBy;
+        $this->createdOn = $createdOn;
     }
 
     /**
@@ -104,25 +136,18 @@ class  User {
     /**
      * @return mixed
      */
-    public function getUpdatedTimestamp()
+    public function getUpdatedOn()
     {
-        return $this->updatedTimestamp;
+        return $this->updatedOn;
     }
 
     /**
-     * @param mixed $updatedTimestamp
+     * @param mixed $updatedOn
      */
-    public function setUpdatedTimestamp($updatedTimestamp): void
+    public function setUpdatedOn($updatedOn): void
     {
-        $this->updatedTimestamp = $updatedTimestamp;
+        $this->updatedOn = $updatedOn;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
 }

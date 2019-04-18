@@ -16,16 +16,14 @@ services:
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,DTO,Tests,Kernel.php}'
+        autowire: true
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
+        autowire: true
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    App\Model\UserManager: ~
-
-    App\Model\UserManagerInterface: '@App\Model\UserManager'

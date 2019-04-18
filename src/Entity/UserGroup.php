@@ -14,29 +14,117 @@ class UserGroup {
     public $id;
 
     /**
-     * @ORM\Column(type="int", length=100)
+     * @ORM\Column(name="user_id",type="string", length=255)
      */
     public $userId;
 
     /**
-     * @ORM\Column(type="int", length=100)
+     * @ORM\Column(name="group_id",type="string", length=255)
      */
     public $groupId;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="created_on",type="bigint")
      */
-    public $createdBy;
+    public $createdOn;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="updated_by",type="string", length=100)
      */
     public $updatedBy;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(name="updated_on",type="bigint",nullable=true)
      */
-    public $updatedTimestamp;
-    
+    public $updatedOn;
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId): void
+    {
+        $this->userId = $userId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
+    }
+
+    /**
+     * @param mixed $groupId
+     */
+    public function setGroupId($groupId): void
+    {
+        $this->groupId = $groupId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedOn()
+    {
+        return $this->createdOn;
+    }
+
+    /**
+     * @param mixed $createdOn
+     */
+    public function setCreatedOn($createdOn): void
+    {
+        $this->createdOn = $createdOn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdatedBy()
+    {
+        return $this->updatedBy;
+    }
+
+    /**
+     * @param mixed $updatedBy
+     */
+    public function setUpdatedBy($updatedBy): void
+    {
+        $this->updatedBy = $updatedBy;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdatedOn()
+    {
+        return $this->updatedOn;
+    }
+
+    /**
+     * @param mixed $updatedOn
+     */
+    public function setUpdatedOn($updatedOn): void
+    {
+        $this->updatedOn = $updatedOn;
+    }
+
 
 }

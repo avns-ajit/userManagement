@@ -1,16 +1,12 @@
 <?php
 
-
 namespace App\Repository;
 
-
-use App\Entity\User;
 use App\Entity\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-class UserRepository extends ServiceEntityRepository
+class UserRoleRespository extends ServiceEntityRepository
 {
 
     /**
@@ -21,7 +17,7 @@ class UserRepository extends ServiceEntityRepository
     {
         parent::__construct(
             $registry,
-            User::class
+            UserRole::class
         );
     }
 
@@ -29,20 +25,8 @@ class UserRepository extends ServiceEntityRepository
      * @param string $userId
      * @return UserRole
      */
-    public function findByUserId(string $userId): UserRole
+    public function findByUser(string $user): UserRole
     {
-        return $this->findOneBy(['id' => $userId]);
+        return $this->findOneBy(['userId' => $user]);
     }
-
-    /**
-     * @param User $user
-     * @throws ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function save(User $user)
-    {
-        $this->_em->persist($user);
-        $this->_em->flush();
-    }
-
 }

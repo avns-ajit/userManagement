@@ -11,7 +11,8 @@ interface UserManagerInterface
 
     /**
      * @param UserDTO $userDTO
-     * @return UserManagerInterface
+     * @return mixed
      */
     public function createUser(UserDTO $userDTO);
+
 }

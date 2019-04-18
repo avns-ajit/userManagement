@@ -13,55 +13,64 @@ class Permission {
      */
     public $id;
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=255)
      */
-    public $name;
+    public $permission;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="created_on",type="bigint")
      */
-    public $createdBy;
+    public $createdOn;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="updated_by",type="string", length=100)
      */
     public $updatedBy;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(name="updated_on",type="bigint",nullable=true)
      */
-    public $updatedTimestamp;
+    public $updatedOn;
 
     /**
      * @return mixed
      */
-    public function getName()
+    public function getId()
     {
-        return $this->name;
+        return $this->id;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getPermission()
+    {
+        return $this->permission;
     }
 
     /**
-     * @param mixed $name
+     * @param mixed $permission
      */
-    public function setName($name): void
+    public function setPermission($permission): void
     {
-        $this->name = $name;
+        $this->permission = $permission;
     }
 
     /**
      * @return mixed
      */
-    public function getCreatedBy()
+    public function getCreatedOn()
     {
-        return $this->createdBy;
+        return $this->createdOn;
     }
 
     /**
-     * @param mixed $createdBy
+     * @param mixed $createdOn
      */
-    public function setCreatedBy($createdBy): void
+    public function setCreatedOn($createdOn): void
     {
-        $this->createdBy = $createdBy;
+        $this->createdOn = $createdOn;
     }
 
     /**
@@ -83,26 +92,19 @@ class Permission {
     /**
      * @return mixed
      */
-    public function getUpdatedTimestamp()
+    public function getUpdatedOn()
     {
-        return $this->updatedTimestamp;
+        return $this->updatedOn;
     }
 
     /**
-     * @param mixed $updatedTimestamp
+     * @param mixed $updatedOn
      */
-    public function setUpdatedTimestamp($updatedTimestamp): void
+    public function setUpdatedOn($updatedOn): void
     {
-        $this->updatedTimestamp = $updatedTimestamp;
+        $this->updatedOn = $updatedOn;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-    
+
 
 }

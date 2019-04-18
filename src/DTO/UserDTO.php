@@ -18,10 +18,12 @@ final class UserDTO
      */
     private $name;
 
-    public function __construct(string $name)
-    {
-        $this->$name = $name;
-    }
+    /**
+     * @Type("string")
+     * @Assert\NotNull(message="user id cannot be null")
+     * @Assert\NotBlank(message="user id cannot be empty")
+     */
+    private $user;
 
     /**
      * @return mixed
@@ -34,5 +36,14 @@ final class UserDTO
     public function __toString(){
         return $this->getName();
     }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
 
 }

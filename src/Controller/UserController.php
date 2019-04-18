@@ -18,13 +18,17 @@ use App\Model\UserManagerInterface;
 class UserController extends AbstractController
 {
     /**
-     * @var UserManager
+     * @var UserManagerInterface
      */
     private $userManager;
 
+    /**
+     * UserController constructor.
+     * @param UserManagerInterface $userManager
+     */
     public function __construct(UserManagerInterface $userManager)
     {
-        $this->$userManager = $userManager;
+        $this->userManager = $userManager;
     }
     /**
      *  @Route("/all")
@@ -50,7 +54,6 @@ class UserController extends AbstractController
         if (count($errors) > 0) {
             return $this->validationFailedResponse($errors);
         }
-        echo $userDTO;
         $this->userManager->createUser($userDTO);
         $response = new Response(json_encode($userDTO->getName()));
         $response->headers->set('Content-Type', 'application/json');

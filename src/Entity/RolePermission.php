@@ -3,9 +3,9 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
- * @ORM\Table(name="Users")
+ * @ORM\Table(name="role_permission")
  */
-class User {
+class RolePermission {
     /**
      * @ORM\Column(type="integer")
      * @ORM\Id
@@ -13,28 +13,117 @@ class User {
      */
     public $id;
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="role_id",type="integer")
      */
-    public $name;
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    public $isDeleted;
+    public $roleId;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="permission_id",type="integer")
      */
-    public $createdBy;
+    public $permissionId;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(name="created_on",type="bigint")
+     */
+    public $createdOn;
+
+    /**
+     * @ORM\Column(name="updated_by",type="string", length=100)
      */
     public $updatedBy;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(name="updated_on",type="bigint",nullable=true)
      */
-    public $updatedTimestamp;
-    
-    //Getters and Setters
+    public $updatedOn;
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRoleId()
+    {
+        return $this->roleId;
+    }
+
+    /**
+     * @param mixed $roleId
+     */
+    public function setRoleId($roleId): void
+    {
+        $this->roleId = $roleId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPermissionId()
+    {
+        return $this->permissionId;
+    }
+
+    /**
+     * @param mixed $permissionId
+     */
+    public function setPermissionId($permissionId): void
+    {
+        $this->permissionId = $permissionId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedOn()
+    {
+        return $this->createdOn;
+    }
+
+    /**
+     * @param mixed $createdOn
+     */
+    public function setCreatedOn($createdOn): void
+    {
+        $this->createdOn = $createdOn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdatedBy()
+    {
+        return $this->updatedBy;
+    }
+
+    /**
+     * @param mixed $updatedBy
+     */
+    public function setUpdatedBy($updatedBy): void
+    {
+        $this->updatedBy = $updatedBy;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdatedOn()
+    {
+        return $this->updatedOn;
+    }
+
+    /**
+     * @param mixed $updatedOn
+     */
+    public function setUpdatedOn($updatedOn): void
+    {
+        $this->updatedOn = $updatedOn;
+    }
+
+
 }
