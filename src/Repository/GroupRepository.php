@@ -34,4 +34,10 @@ class GroupRepository extends ServiceEntityRepository
         $this->_em->persist($group);
         $this->_em->flush();
     }
+
+    public function delete($groupid)
+    {
+        $this->createNamedQuery('delete') ->setParameter('group', $groupid)
+            ->getResult();
+    }
 }

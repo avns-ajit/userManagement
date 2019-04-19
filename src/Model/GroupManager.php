@@ -6,6 +6,7 @@ namespace App\Model;
 
 use App\DTO\GroupDTO;
 use App\DTO\UserGroupRequest;
+use App\DTO\DeleteGroupRequest;
 use App\Entity\Group;
 use App\Entity\UserGroup;
 use App\Repository\GroupRepository;
@@ -111,6 +112,15 @@ class GroupManager implements GroupManagerInterface
         $userGroup= $this->userGroupRespository->findUserGroup($userGroupRequest->getUser(),$userGroupRequest->getGroup());
         if(isset($userGroup))
             $this->userGroupRespository->delete($userGroup);
+        return $this;
+    }
+
+    public function deleteGroup(DeleteGroupRequest $deleteGroupRequest)
+    {
+        $isGroupAssigned= $this->userGroupRespository->isGroupMapped($deleteGroupRequest->getGroup());
+        if($isGroupAssigned)
+            return $this;
+        $this->groupRepository->delete($deleteGroupRequest->getGroup());
         return $this;
     }
 }

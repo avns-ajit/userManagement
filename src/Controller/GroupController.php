@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use App\DTO\GroupDTO;
 use App\DTO\UserGroupRequest;
+use App\DTO\DeleteGroupRequest;
 
 
 /**
@@ -46,6 +47,22 @@ class GroupController extends AbstractController
         }
         $this->groupManager->createGroup($groupDTO);
         $response = new Response(json_encode($groupDTO->getName()));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+
+    /**
+     * @Route("/delete")
+     * @ParamConverter("deleteGroupRequest", converter="fos_rest.request_body")
+     */
+    public function delete(DeleteGroupRequest $deleteGroupRequest,ValidatorInterface $validator)
+    {
+        $errors = $validator->validate($deleteGroupRequest);
+        if (count($errors) > 0) {
+            return $this->validationFailedResponse($errors);
+        }
+        $this->groupManager->deleteGroup($deleteGroupRequest);
+        $response = new Response(json_encode($deleteGroupRequest->getGroup()));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }

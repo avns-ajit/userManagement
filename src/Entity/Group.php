@@ -1,9 +1,14 @@
 <?php 
 namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\NamedQuery;
+use Doctrine\ORM\Mapping\NamedQueries;
 /**
  * @ORM\Entity
  * @ORM\Table(name="`group`")
+ * * @ORM\NamedQueries({
+ *     @NamedQuery(name="delete", query="delete from App\Entity\Group g where g.groupId in(:group)")
+ * })
  */
 class Group {
     /**

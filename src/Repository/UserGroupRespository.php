@@ -31,6 +31,13 @@ class UserGroupRespository  extends ServiceEntityRepository
         return $count>0;
     }
 
+    public function isGroupMapped(string $group)
+    {
+        $count=$this->count(['groupId' => $group]);
+        print_r($count);
+        return $count>0;
+    }
+
     public function findUserGroup(string $user,string $group)
     {
         return $this->findOneBy(['userId' => $user,'groupId' => $group]);
