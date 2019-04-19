@@ -6,6 +6,7 @@ namespace App\Model;
 
 use App\DTO\UserDTO;
 use App\DTO\DeleteUserRequest;
+use Exception;
 
 interface UserManagerInterface
 {
@@ -14,7 +15,7 @@ interface UserManagerInterface
      * @param UserDTO $userDTO
      * @return mixed
      */
-    public function createUser(UserDTO $userDTO);
+    public function create(UserDTO $userDTO);
 
     /**
      * @param DeleteUserRequest $deleteUserRequest
