@@ -29,13 +29,14 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * @param string $userId
-     * @return UserRole
+     * @return User
      */
     public function findByUser(string $userId): User
     {
         $user=$this->findOneBy(['userId' => $userId]);
         if(!isset($user))
             throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
+        return $user;
     }
 
     /**

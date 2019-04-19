@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 
+use App\Util\UserManagementUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -32,13 +33,19 @@ class GroupController extends AbstractController
     private $validator;
 
     /**
+     * @var UserManagementUtility
+     */
+    private $userManagementUtility;
+
+    /**
      * GroupController constructor.
      * @param GroupManagerInterface $groupManager
      */
-    public function __construct(GroupManagerInterface $groupManager,ValidatorInterface $validator)
+    public function __construct(GroupManagerInterface $groupManager,ValidatorInterface $validator,UserManagementUtility $userManagementUtility)
     {
         $this->groupManager = $groupManager;
         $this->validator = $validator;
+        $this->userManagementUtility = $userManagementUtility;
     }
 
     /**
@@ -49,12 +56,12 @@ class GroupController extends AbstractController
     {
         $errors = $this->validator->validate($groupDTO);
         if (count($errors) > 0) {
-            return $this->validationFailedResponse($errors);
+            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse);
         }
-        $this->groupManager->createGroup($groupDTO);
-        $response = new Response(json_encode($groupDTO->getName()));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        $groupId=$this->groupManager->createGroup($groupDTO);
+        $groupResponse = $this->createGroupResponse($groupDTO, $groupId);
+        return $this->userManagementUtility->generateJsonResponse($groupResponse);
     }
 
     /**
@@ -114,5 +121,23 @@ class GroupController extends AbstractController
         $response->setStatusCode(Response::HTTP_BAD_REQUEST);
         return $response;
     }
+
+    private function createGroupResponse(UserDTO $groupDTO, $userId): UserResponse
+    {
+        $userResponse = new UserResponse();
+        $userResponse->setUser($userId);
+        $userResponse->setName($groupDTO->getName());
+        $userResponse->setMessage("User Successfully Created");
+        return $userResponse;
+    }
+
+    private function deleteGroupResponse(DeleteUserDTO $deleteUserDTO): UserResponse
+    {
+        $userResponse = new UserResponse();
+        $userResponse->setUser($deleteUserDTO->getUser());
+        $userResponse->setMessage("User Deleted Created");
+        return $userResponse;
+    }
+
 
 }

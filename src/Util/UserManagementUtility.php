@@ -8,6 +8,7 @@ use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use App\Response\BaseResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class UserManagementUtility
 {
@@ -22,11 +23,17 @@ class UserManagementUtility
      */
     private $roleRespository;
 
+    /**
+     * @var SerializerInterface
+     */
+    private $serializerInterface;
 
-    public function __construct(UserRepository $userRepository,RoleRepository $roleRepository)
+
+    public function __construct(UserRepository $userRepository,RoleRepository $roleRepository,SerializerInterface $serializerInterface)
     {
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
+        $this->serializerInterface = $serializerInterface;
 
     }
 
@@ -50,12 +57,12 @@ class UserManagementUtility
      * @param $response
      * @return Response
      */
-    public function generateJsonResponse($response)
+    public function generateJsonResponse($response,$code)
     {
-        $serializedEntity = $this->container->get('serializer')->serialize($response, 'json');
+        $serializedEntity = $this->serializerInterface->serialize($response, 'json');
         $response= new Response($serializedEntity);
         $response->headers->set('Content-Type', 'application/json');
-        $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        $response->setStatusCode($code);
         return $response;
     }
 

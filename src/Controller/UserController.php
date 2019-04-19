@@ -60,11 +60,11 @@ class UserController extends AbstractController
         $errors = $this->validator->validate($userDTO);
         if (count($errors) > 0) {
             $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
-            return $this->userManagementUtility->generateJsonResponse($baseResponse);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $userId=$this->userManager->create($userDTO);
         $userResponse = $this->createUserResponse($userDTO, $userId);
-        return $this->userManagementUtility->generateJsonResponse($userResponse);
+        return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
     }
 
     /**
@@ -76,11 +76,11 @@ class UserController extends AbstractController
         $errors = $this->validator->validate($deleteUserDTO);
         if (count($errors) > 0) {
             $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
-            return $this->userManagementUtility->generateJsonResponse($baseResponse);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $this->userManager->delete($deleteUserDTO);
         $userResponse = $this->deleteUserResponse($deleteUserDTO);
-        return $this->userManagementUtility->generateJsonResponse($userResponse);
+        return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
 
     }
 
