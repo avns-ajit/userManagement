@@ -14,7 +14,6 @@ use App\DTO\UserDTO;
 use App\DTO\DeleteUserRequest;
 use App\Model\UserManagerInterface;
 use App\Response\BaseResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 
@@ -38,6 +37,7 @@ class UserController extends AbstractController
     /**
      * UserController constructor.
      * @param UserManagerInterface $userManager
+     * @param ValidatorInterface $validator
      */
     public function __construct(UserManagerInterface $userManager,ValidatorInterface $validator)
     {
@@ -51,19 +51,14 @@ class UserController extends AbstractController
      */
     public function create(UserDTO $userDTO)
     {
-        try{
-            $errors = $this->validator->validate($userDTO);
-            if (count($errors) > 0) {
-                $baseResponse=$this->createBaseResponse($errors);
-                return $this->generateResponse($baseResponse);
-            }
-            $userId=$this->userManager->create($userDTO);
-            $userResponse = $this->createUserResponse($userDTO, $userId);
-            return $this->generateResponse($userResponse);
-        }catch(Exception $exception){
-            $baseResponse=$this->createBaseResponse($exception->getMessage());
-            return $this->generateResponse($baseResponse);
+        $errors = $this->validator->validate($userDTO);
+        if (count($errors) > 0) {
+            $baseResponse=$this->createBaseResponse($errors);
+            return $this->generateJsonResponse($baseResponse);
         }
+        $userId=$this->userManager->create($userDTO);
+        $userResponse = $this->createUserResponse($userDTO, $userId);
+        return $this->generateJsonResponse($userResponse);
     }
 
     /**
@@ -87,7 +82,11 @@ class UserController extends AbstractController
 
     }
 
-    private function generateResponse($response)
+    /**
+     * @param $response
+     * @return Response
+     */
+    private function generateJsonResponse($response)
     {
         $serializedEntity = $this->container->get('serializer')->serialize($response, 'json');
         $response= new Response($serializedEntity);
@@ -96,6 +95,10 @@ class UserController extends AbstractController
         return $response;
     }
 
+    /**
+     * @param $errors
+     * @return BaseResponse
+     */
     private function createBaseResponse($errors)
     {
         $baseResponse= new BaseResponse();
@@ -114,7 +117,7 @@ class UserController extends AbstractController
         $userResponse->setUserId($userId);
         $userResponse->setRole($userDTO->getRole());
         $userResponse->setName($userDTO->getName());
-        $userResponse->setMessage("User Succesfully Created");
+        $userResponse->setMessage("User Successfully Created");
         return $userResponse;
     }
 

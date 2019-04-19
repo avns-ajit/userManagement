@@ -6,7 +6,6 @@ namespace App\Model;
 
 use App\DTO\UserDTO;
 use App\DTO\DeleteUserRequest;
-use Exception;
 
 interface UserManagerInterface
 {

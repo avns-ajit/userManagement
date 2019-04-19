@@ -22,7 +22,7 @@ class RoleRepository extends ServiceEntityRepository
 
     /**
      * @param array $roles
-     * @return Role
+     * @return mixed
      */
     public function findPermissionsForRoles(array $roles)
     {

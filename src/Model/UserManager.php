@@ -8,6 +8,7 @@ use App\DTO\DeleteUserRequest;
 use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Entity\UserRole;
+use App\Constant\UserManagementConstants;
 use App\Exception\UserManagementException;
 use App\Repository\UserRepository;
 use App\Repository\UserRoleRepository;
@@ -59,19 +60,26 @@ class UserManager implements UserManagerInterface
         $initiatorPermissions=$this->userManagementUtility->getUserPermissions($userDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction($userDTO->getRole(),"CREATE");
-            if ($initiatorAction==$value->{'name'}){
-                $userid=$this->saveDetails($userDTO);
-                return $userid;
+            if (strcmp($initiatorAction, $value->{'name'})==0){
+                //TODO: role Details can be cached to avoid DB calls.
+                $role = $this->roleRepository->findByName($userDTO->getRole());
+                if(!isset($role))
+                    throw new UserManagementException(UserManagementConstants::ROLE_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
+                $userId=$this->saveDetails($userDTO,$role);
+                return $userId;
+
             }
         }
-        throw new UserManagementException("Initiator not authorized to perform this action",Response::HTTP_FORBIDDEN);
+        //TODO : move to error codes and messages.
+        throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }
 
-    private function saveDetails($userDTO)
+
+    private function saveDetails($userDTO,$role)
     {
         $userId=Uuid::uuid1();
         $this->saveUser($userDTO, $userId);
-        $this->saveUserRole($userDTO, $userId);
+        $this->saveUserRole($userDTO, $userId,$role);
         return $userId;
     }
 
@@ -97,10 +105,8 @@ class UserManager implements UserManagerInterface
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    private function saveUserRole($userDTO,$userId)
+    private function saveUserRole($userDTO,$userId,$role)
     {
-        //TODO: role Details can be cached to avoid DB calls.
-        $role = $this->roleRepository->findByName($userDTO->getRole());
         $userRole = new UserRole();
         $userRole->setCreatedOn(time());
         $userRole->setUpdatedBy($userDTO->getInitiator());

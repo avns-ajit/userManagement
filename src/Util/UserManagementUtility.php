@@ -27,19 +27,21 @@ class UserManagementUtility
         $this->roleRepository = $roleRepository;
 
     }
+
+    /**
+     * @param $user
+     * @return mixed
+     */
     public function getUserPermissions($user){
 
-        $data=$this->userRepository->findByUser($user);
-        $array = $data->getRoles()->getValues();
-        print_r($array);
+        $userDetails=$this->userRepository->findByUser($user);
         $roleIds = array();
-        foreach ($data->getRoles() as $key => $value) {
+        foreach ($userDetails->getRoles() as $key => $value) {
             $roleId=$value->{'id'};
             $roleIds[] = $roleId;
         }
-        $dd=$this->roleRepository->findPermissionsForRoles($roleIds);
-        return $dd;
-
+        $permissions=$this->roleRepository->findPermissionsForRoles($roleIds);
+        return $permissions;
     }
 
 
