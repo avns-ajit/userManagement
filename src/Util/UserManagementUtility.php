@@ -6,6 +6,8 @@ namespace App\Util;
 
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
+use App\Response\BaseResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserManagementUtility
 {
@@ -42,6 +44,30 @@ class UserManagementUtility
         }
         $permissions=$this->roleRepository->findPermissionsForRoles($roleIds);
         return $permissions;
+    }
+
+    /**
+     * @param $response
+     * @return Response
+     */
+    public function generateJsonResponse($response)
+    {
+        $serializedEntity = $this->container->get('serializer')->serialize($response, 'json');
+        $response= new Response($serializedEntity);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        return $response;
+    }
+
+    /**
+     * @param $errors
+     * @return BaseResponse
+     */
+    public function createBaseResponse($errors)
+    {
+        $baseResponse= new BaseResponse();
+        $baseResponse->setMessage($errors);
+        return $baseResponse;
     }
 
 

@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 use App\Response\UserResponse;
+use App\Util\UserManagementUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,16 +33,22 @@ class UserController extends AbstractController
      */
     private $validator;
 
+    /**
+     * @var UserManagementUtility
+     */
+    private $userManagementUtility;
+
 
     /**
      * UserController constructor.
      * @param UserManagerInterface $userManager
      * @param ValidatorInterface $validator
      */
-    public function __construct(UserManagerInterface $userManager,ValidatorInterface $validator)
+    public function __construct(UserManagerInterface $userManager,ValidatorInterface $validator,UserManagementUtility $userManagementUtility)
     {
         $this->userManager = $userManager;
         $this->validator = $validator;
+        $this->userManagementUtility = $userManagementUtility;
     }
 
     /**
@@ -52,12 +59,12 @@ class UserController extends AbstractController
     {
         $errors = $this->validator->validate($userDTO);
         if (count($errors) > 0) {
-            $baseResponse=$this->createBaseResponse($errors);
-            return $this->generateJsonResponse($baseResponse);
+            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse);
         }
         $userId=$this->userManager->create($userDTO);
         $userResponse = $this->createUserResponse($userDTO, $userId);
-        return $this->generateJsonResponse($userResponse);
+        return $this->userManagementUtility->generateJsonResponse($userResponse);
     }
 
     /**
@@ -68,38 +75,15 @@ class UserController extends AbstractController
     {
         $errors = $this->validator->validate($deleteUserDTO);
         if (count($errors) > 0) {
-            $baseResponse=$this->createBaseResponse($errors);
-            return $this->generateJsonResponse($baseResponse);
+            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse);
         }
         $this->userManager->delete($deleteUserDTO);
         $userResponse = $this->deleteUserResponse($deleteUserDTO);
-        return $this->generateJsonResponse($userResponse);
+        return $this->userManagementUtility->generateJsonResponse($userResponse);
 
     }
 
-    /**
-     * @param $response
-     * @return Response
-     */
-    private function generateJsonResponse($response)
-    {
-        $serializedEntity = $this->container->get('serializer')->serialize($response, 'json');
-        $response= new Response($serializedEntity);
-        $response->headers->set('Content-Type', 'application/json');
-        $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-        return $response;
-    }
-
-    /**
-     * @param $errors
-     * @return BaseResponse
-     */
-    private function createBaseResponse($errors)
-    {
-        $baseResponse= new BaseResponse();
-        $baseResponse->setMessage($errors);
-        return $baseResponse;
-    }
 
     /**
      * @param UserDTO $userDTO

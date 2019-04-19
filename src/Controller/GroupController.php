@@ -27,21 +27,27 @@ class GroupController extends AbstractController
     private $groupManager;
 
     /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
+    /**
      * GroupController constructor.
      * @param GroupManagerInterface $groupManager
      */
-    public function __construct(GroupManagerInterface $groupManager)
+    public function __construct(GroupManagerInterface $groupManager,ValidatorInterface $validator)
     {
         $this->groupManager = $groupManager;
+        $this->validator = $validator;
     }
 
     /**
      * @Route("/create")
      * @ParamConverter("groupDTO", converter="fos_rest.request_body")
      */
-    public function create(GroupDTO $groupDTO,ValidatorInterface $validator)
+    public function create(GroupDTO $groupDTO)
     {
-        $errors = $validator->validate($groupDTO);
+        $errors = $this->validator->validate($groupDTO);
         if (count($errors) > 0) {
             return $this->validationFailedResponse($errors);
         }
@@ -55,9 +61,9 @@ class GroupController extends AbstractController
      * @Route("/delete")
      * @ParamConverter("deleteGroupRequest", converter="fos_rest.request_body")
      */
-    public function delete(DeleteGroupRequest $deleteGroupRequest,ValidatorInterface $validator)
+    public function delete(DeleteGroupRequest $deleteGroupRequest)
     {
-        $errors = $validator->validate($deleteGroupRequest);
+        $errors = $this->validator->validate($deleteGroupRequest);
         if (count($errors) > 0) {
             return $this->validationFailedResponse($errors);
         }
@@ -71,10 +77,10 @@ class GroupController extends AbstractController
      * @Route("/add")
      * @ParamConverter("userGroupRequest", converter="fos_rest.request_body")
      */
-    public function add(UserGroupRequest $userGroupRequest,ValidatorInterface $validator)
+    public function add(UserGroupRequest $userGroupRequest)
     {
         print_r($userGroupRequest);
-        $errors = $validator->validate($userGroupRequest);
+        $errors = $this->validator->validate($userGroupRequest);
         if (count($errors) > 0) {
             return $this->validationFailedResponse($errors);
         }
@@ -88,10 +94,10 @@ class GroupController extends AbstractController
      * @Route("/remove")
      * @ParamConverter("userGroupRequest", converter="fos_rest.request_body")
      */
-    public function remove(UserGroupRequest $userGroupRequest,ValidatorInterface $validator)
+    public function remove(UserGroupRequest $userGroupRequest)
     {
         print_r($userGroupRequest);
-        $errors = $validator->validate($userGroupRequest);
+        $errors = $this->validator->validate($userGroupRequest);
         if (count($errors) > 0) {
             return $this->validationFailedResponse($errors);
         }
