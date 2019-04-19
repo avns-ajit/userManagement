@@ -34,8 +34,18 @@ class  User {
      */
     public $roles;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="Group")
+     * @ORM\JoinTable(name="user_group",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="user_id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="group_id")}
+     *      )
+     */
+    public $groups;
+
     public function __construct() {
         $this->roles = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->groups = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -177,6 +187,22 @@ class  User {
     public function setRoles($roles): void
     {
         $this->roles = $roles;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @param mixed $groups
+     */
+    public function setGroups($groups): void
+    {
+        $this->groups = $groups;
     }
 
 

@@ -11,6 +11,7 @@ use App\Model\GroupManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use App\DTO\GroupDTO;
+use App\DTO\UserGroupRequest;
 
 
 /**
@@ -45,6 +46,40 @@ class GroupController extends AbstractController
         }
         $this->groupManager->createGroup($groupDTO);
         $response = new Response(json_encode($groupDTO->getName()));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+
+    /**
+     * @Route("/add")
+     * @ParamConverter("userGroupRequest", converter="fos_rest.request_body")
+     */
+    public function add(UserGroupRequest $userGroupRequest,ValidatorInterface $validator)
+    {
+        print_r($userGroupRequest);
+        $errors = $validator->validate($userGroupRequest);
+        if (count($errors) > 0) {
+            return $this->validationFailedResponse($errors);
+        }
+        $this->groupManager->addToGroup($userGroupRequest);
+        $response = new Response(json_encode($userGroupRequest->getUser()));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+
+    /**
+     * @Route("/remove")
+     * @ParamConverter("userGroupRequest", converter="fos_rest.request_body")
+     */
+    public function remove(UserGroupRequest $userGroupRequest,ValidatorInterface $validator)
+    {
+        print_r($userGroupRequest);
+        $errors = $validator->validate($userGroupRequest);
+        if (count($errors) > 0) {
+            return $this->validationFailedResponse($errors);
+        }
+        $this->groupManager->removeFromGroup($userGroupRequest);
+        $response = new Response(json_encode($userGroupRequest->getUser()));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }

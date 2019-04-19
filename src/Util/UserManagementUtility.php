@@ -42,6 +42,7 @@ class UserManagementUtility
 
     }
 
+
     public function generateInitiatorAction($role,$action)
     {
         $seperator="_";

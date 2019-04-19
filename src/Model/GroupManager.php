@@ -5,8 +5,12 @@ namespace App\Model;
 
 
 use App\DTO\GroupDTO;
+use App\DTO\UserGroupRequest;
 use App\Entity\Group;
+use App\Entity\UserGroup;
 use App\Repository\GroupRepository;
+use App\Repository\UserRepository;
+use App\Repository\UserGroupRespository;
 use App\Util\UserManagementUtility;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -21,15 +25,27 @@ class GroupManager implements GroupManagerInterface
     private $groupRepository;
 
     /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
+     * @var UserGroupRespository
+     */
+    private $userGroupRespository;
+
+    /**
      * @var UserManagementUtility
      */
     private $userManagementUtility;
 
 
-    public function __construct(GroupRepository $groupRepository,UserManagementUtility $userManagementUtility)
+    public function __construct(GroupRepository $groupRepository,UserManagementUtility $userManagementUtility,UserRepository $userRepository,UserGroupRespository $userGroupRespository)
     {
         $this->groupRepository = $groupRepository;
         $this->userManagementUtility = $userManagementUtility;
+        $this->userRepository = $userRepository;
+        $this->userGroupRespository = $userGroupRespository;
     }
 
 
@@ -60,5 +76,41 @@ class GroupManager implements GroupManagerInterface
         }  catch (Exception $e) {
             print_r($e);
         }
+    }
+
+    /**
+     * @param UserGroupRequest $userGroupRequest
+     * @return $this
+     */
+    public function addToGroup(UserGroupRequest $userGroupRequest)
+    {
+        $isGroupAssigned= $this->userGroupRespository->isGroupAssigned($userGroupRequest->getUser(),$userGroupRequest->getGroup());
+        if($isGroupAssigned)
+            return $this;
+        $this->saveUserGroup($userGroupRequest);
+        return $this;
+
+    }
+
+    private function saveUserGroup($userGroupRequest): void
+    {
+        $userGroup = new UserGroup();
+        $userGroup->setCreatedOn(time());
+        $userGroup->setUpdatedBy($userGroupRequest->getInitiator());
+        $userGroup->setGroupId($userGroupRequest->getGroup());
+        $userGroup->setUserId($userGroupRequest->getUser());
+        try {
+            $this->userGroupRespository->save($userGroup);
+        }  catch (Exception $e) {
+            print_r($e);
+        }
+    }
+
+    public function removeFromGroup(UserGroupRequest $userGroupRequest)
+    {
+        $userGroup= $this->userGroupRespository->findUserGroup($userGroupRequest->getUser(),$userGroupRequest->getGroup());
+        if(isset($userGroup))
+            $this->userGroupRespository->delete($userGroup);
+        return $this;
     }
 }
