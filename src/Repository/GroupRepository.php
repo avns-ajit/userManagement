@@ -4,10 +4,13 @@
 namespace App\Repository;
 
 
+use App\Constant\UserManagementConstants;
 use App\Entity\Group;
+use App\Exception\UserManagementException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Doctrine\ORM\ORMException;
+use Symfony\Component\HttpFoundation\Response;
 
 class GroupRepository extends ServiceEntityRepository
 {
@@ -35,9 +38,18 @@ class GroupRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
-    public function delete($groupid)
+    public function delete(Group $group)
     {
-        $this->createNamedQuery('delete') ->setParameter('group', $groupid)
-            ->getResult();
+        $this->_em->remove($group);
+        $this->_em->flush();
+    }
+
+
+    public function findByGroup(string $groupId): Group
+    {
+        $group=$this->findOneBy(['groupId' => $groupId]);
+        if(!isset($group))
+            throw new UserManagementException(UserManagementConstants::GROUP_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
+        return $group;
     }
 }

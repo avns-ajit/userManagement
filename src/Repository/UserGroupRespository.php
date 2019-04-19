@@ -4,10 +4,13 @@
 namespace App\Repository;
 
 
+use App\Constant\UserManagementConstants;
 use App\Entity\UserGroup;
+use App\Exception\UserManagementException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserGroupRespository  extends ServiceEntityRepository
 {
@@ -24,23 +27,26 @@ class UserGroupRespository  extends ServiceEntityRepository
         );
     }
 
-    public function isGroupAssigned(string $user,string $group)
+    public function checkIfGroupAssigned(string $user,string $group)
     {
          $count=$this->count(['userId' => $user,'groupId' => $group]);
-         print_r($count);
-        return $count>0;
+        if($count>0)
+            throw new UserManagementException(UserManagementConstants::GROUP_ALREADY_ASSIGNED,Response::HTTP_FORBIDDEN);
     }
 
-    public function isGroupMapped(string $group)
+    public function checkUsersInGroup(string $group)
     {
         $count=$this->count(['groupId' => $group]);
-        print_r($count);
-        return $count>0;
+        if($count>0)
+            throw new UserManagementException(UserManagementConstants::GROUP_NOT_EMPTY,Response::HTTP_FORBIDDEN);
     }
 
-    public function findUserGroup(string $user,string $group)
+    public function checkIfGroupHasUser(string $user,string $group)
     {
-        return $this->findOneBy(['userId' => $user,'groupId' => $group]);
+         $userGroup=$this->findOneBy(['userId' => $user,'groupId' => $group]);
+         if(!isset($userGroup))
+             throw new UserManagementException(UserManagementConstants::GROUP_NOT_ASSIGNED,Response::HTTP_FORBIDDEN);
+         return $userGroup;
     }
 
     public function save(UserGroup $userGroup)

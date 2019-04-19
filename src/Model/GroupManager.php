@@ -6,7 +6,7 @@ namespace App\Model;
 
 use App\Constant\UserManagementConstants;
 use App\DTO\GroupDTO;
-use App\DTO\UserGroupRequest;
+use App\DTO\UserGroupDTO;
 use App\DTO\DeleteGroupDTO;
 use App\Entity\Group;
 use App\Entity\UserGroup;
@@ -76,10 +76,9 @@ class GroupManager implements GroupManagerInterface
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","DELETE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
-                $isGroupAssigned= $this->userGroupRespository->isGroupMapped($deleteGroupRequest->getGroup());
-                if($isGroupAssigned)
-                    return $this;
-                $this->groupRepository->delete($deleteGroupRequest->getGroup());
+                $group= $this->groupRepository->findByGroup($deleteGroupRequest->getGroup());
+                $this->userGroupRespository->checkUsersInGroup($deleteGroupRequest->getGroup());
+                $this->groupRepository->delete($group);
             }
         }
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
@@ -98,39 +97,35 @@ class GroupManager implements GroupManagerInterface
     }
 
     /**
-     * @param UserGroupRequest $userGroupRequest
+     * @param UserGroupDTO $userGroupRequest
      * @return $this
      */
-    public function addToGroup(UserGroupRequest $userGroupRequest)
+    public function addToGroup(UserGroupDTO $userGroupDTO)
     {
-        $isGroupAssigned= $this->userGroupRespository->isGroupAssigned($userGroupRequest->getUser(),$userGroupRequest->getGroup());
-        if($isGroupAssigned)
-            return $this;
-        $this->saveUserGroup($userGroupRequest);
+        $this->groupRepository->findByGroup($userGroupDTO->getGroup());
+        $this->userGroupRespository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->saveUserGroup($userGroupDTO);
         return $this;
 
     }
 
-    private function saveUserGroup($userGroupRequest): void
+    public function removeFromGroup(UserGroupDTO $userGroupDTO)
+    {
+        $this->groupRepository->findByGroup($userGroupDTO->getGroup());
+        $userGroup= $this->userGroupRespository->findUserGroup($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRespository->delete($userGroup);
+        return $this;
+    }
+
+    private function saveUserGroup($userGroupDTO): void
     {
         $userGroup = new UserGroup();
         $userGroup->setCreatedOn(time());
-        $userGroup->setUpdatedBy($userGroupRequest->getInitiator());
-        $userGroup->setGroupId($userGroupRequest->getGroup());
-        $userGroup->setUserId($userGroupRequest->getUser());
-        try {
-            $this->userGroupRespository->save($userGroup);
-        }  catch (Exception $e) {
-            print_r($e);
-        }
+        $userGroup->setUpdatedBy($userGroupDTO->getInitiator());
+        $userGroup->setGroupId($userGroupDTO->getGroup());
+        $userGroup->setUserId($userGroupDTO->getUser());
+        $this->userGroupRespository->save($userGroup);
     }
 
-    public function removeFromGroup(UserGroupRequest $userGroupRequest)
-    {
-        $userGroup= $this->userGroupRespository->findUserGroup($userGroupRequest->getUser(),$userGroupRequest->getGroup());
-        if(isset($userGroup))
-            $this->userGroupRespository->delete($userGroup);
-        return $this;
-    }
 
 }

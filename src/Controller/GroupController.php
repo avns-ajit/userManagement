@@ -14,8 +14,9 @@ use App\Model\GroupManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use App\DTO\GroupDTO;
-use App\DTO\UserGroupRequest;
+use App\DTO\UserGroupDTO;
 use App\DTO\DeleteGroupDTO;
+use App\Response\UserGroupResponse;
 
 
 /**
@@ -78,51 +79,42 @@ class GroupController extends AbstractController
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $this->groupManager->deleteGroup($deleteGroupDTO);
-        $userResponse = $this->deleteGroupResponse($deleteGroupDTO);
-        return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
+        $groupResponse = $this->deleteGroupResponse($deleteGroupDTO);
+        return $this->userManagementUtility->generateJsonResponse($groupResponse,Response::HTTP_OK);
     }
 
     /**
      * @Route("/add")
-     * @ParamConverter("userGroupRequest", converter="fos_rest.request_body")
+     * @ParamConverter("userGroupDTO", converter="fos_rest.request_body")
      */
-    public function add(UserGroupRequest $userGroupRequest)
+    public function add(UserGroupDTO $userGroupDTO)
     {
-        print_r($userGroupRequest);
-        $errors = $this->validator->validate($userGroupRequest);
+        $errors = $this->validator->validate($userGroupDTO);
         if (count($errors) > 0) {
-            return $this->validationFailedResponse($errors);
+            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
-        $this->groupManager->addToGroup($userGroupRequest);
-        $response = new Response(json_encode($userGroupRequest->getUser()));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        $this->groupManager->addToGroup($userGroupDTO);
+        $userGroupResponse = $this->createUserGroupResponse($userGroupDTO);
+        return $this->userManagementUtility->generateJsonResponse($userGroupResponse,Response::HTTP_OK);
     }
 
     /**
      * @Route("/remove")
-     * @ParamConverter("userGroupRequest", converter="fos_rest.request_body")
+     * @ParamConverter("userGroupDTO", converter="fos_rest.request_body")
      */
-    public function remove(UserGroupRequest $userGroupRequest)
+    public function remove(UserGroupDTO $userGroupDTO)
     {
-        print_r($userGroupRequest);
-        $errors = $this->validator->validate($userGroupRequest);
+        $errors = $this->validator->validate($userGroupDTO);
         if (count($errors) > 0) {
-            return $this->validationFailedResponse($errors);
+            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
-        $this->groupManager->removeFromGroup($userGroupRequest);
-        $response = new Response(json_encode($userGroupRequest->getUser()));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        $this->groupManager->removeFromGroup($userGroupDTO);
+        $userGroupResponse = $this->createUserGroupResponse($userGroupDTO);
+        return $this->userManagementUtility->generateJsonResponse($userGroupResponse,Response::HTTP_OK);
     }
 
-    private function validationFailedResponse($errors)
-    {
-        $errorsString = (string) $errors;
-        $response = new Response($errorsString);
-        $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-        return $response;
-    }
 
     private function createGroupResponse(GroupDTO $groupDTO, $groupId): GroupResponse
     {
@@ -139,6 +131,15 @@ class GroupController extends AbstractController
         $groupResponse->setGroup($deleteGroupDTO->getGroup());
         $groupResponse->setMessage("Group Successfully Deleted");
         return $groupResponse;
+    }
+
+    private function createUserGroupResponse(UserGroupDTO $userGroupRequest): UserGroupResponse
+    {
+        $userGroupResponse = new UserGroupResponse();
+        $userGroupResponse->setGroup($userGroupRequest->setGroup());
+        $userGroupResponse->setUser($userGroupRequest->setUser());
+        $userGroupResponse->setMessage("Group Successfully Created");
+        return $userGroupResponse;
     }
 
 

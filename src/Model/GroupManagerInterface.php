@@ -5,7 +5,7 @@ namespace App\Model;
 
 
 use App\DTO\GroupDTO;
-use App\DTO\UserGroupRequest;
+use App\DTO\UserGroupDTO;
 use App\DTO\DeleteGroupDTO;
 
 interface GroupManagerInterface
@@ -17,10 +17,10 @@ interface GroupManagerInterface
      */
     public function createGroup(GroupDTO $groupDTO);
 
-    public function addToGroup(UserGroupRequest $userGroupRequest);
+    public function addToGroup(UserGroupDTO $userGroupDTO);
 
-    public function removeFromGroup(UserGroupRequest $userGroupRequest);
+    public function removeFromGroup(UserGroupDTO $userGroupDTO);
 
-    public function deleteGroup(DeleteGroupDTO $deleteGroupRequest);
+    public function deleteGroup(DeleteGroupDTO $deleteGroupDTO);
 
 }

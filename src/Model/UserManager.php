@@ -75,16 +75,17 @@ class UserManager implements UserManagerInterface
 
     public function delete(DeleteUserDTO $deleteUserDTO)
     {
+        $user= $this->userRepository->findByUser($deleteUserDTO->getUser());
         $initiatorPermissions=$this->userManagementUtility->getUserPermissions($deleteUserDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
-            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("USER","DELETE");
-            if (strcmp($initiatorAction, $value->{'name'})==0){
-                $user= $this->userRepository->findByUser($deleteUserDTO->getUser());
-                if(!isset($user))
-                    throw new UserManagementException(UserManagementConstants::USER_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
-                $this->userRepository->delete($user);
-                return $this;
+            foreach ($user->getRoles() as $role){
+                $initiatorAction=$this->userManagementUtility->generateInitiatorAction($role,"DELETE");
+                if (strcmp($initiatorAction, $value->{'name'})==0){
+                    $this->userRepository->delete($user);
+                    return $this;
+                }
             }
+
         }
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }

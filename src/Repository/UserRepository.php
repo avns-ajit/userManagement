@@ -47,7 +47,7 @@ class UserRepository extends ServiceEntityRepository
     {
         $user=$this->findOneBy(['userId' => $userId]);
         if(!isset($user))
-            throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
+            throw new UserManagementException(UserManagementConstants::INITIATOR_NOT_AVAILABLE,Response::HTTP_FORBIDDEN);
         return $user;
     }
 
