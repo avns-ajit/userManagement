@@ -8,9 +8,6 @@ use Doctrine\ORM\Mapping\NamedQueries;
 /**
  * @ORM\Entity
  * @ORM\Table(name="user_role")
- *  * * @ORM\NamedQueries({
- *     @NamedQuery(name="delete", query="delete from App\Entity\UserRole ur where ur.userId in(:userId)")
- * })
  */
 class UserRole {
     /**

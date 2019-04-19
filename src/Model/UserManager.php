@@ -83,7 +83,6 @@ class UserManager implements UserManagerInterface
                 if(!isset($user))
                     throw new UserManagementException(UserManagementConstants::USER_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
                 $this->userRepository->delete($user);
-                $this->userRoleRepository->delete($deleteUserDTO->getUser());
                 return $this;
             }
         }

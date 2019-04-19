@@ -4,11 +4,13 @@
 namespace App\Model;
 
 
+use App\Constant\UserManagementConstants;
 use App\DTO\GroupDTO;
 use App\DTO\UserGroupRequest;
-use App\DTO\DeleteGroupRequest;
+use App\DTO\DeleteGroupDTO;
 use App\Entity\Group;
 use App\Entity\UserGroup;
+use App\Exception\UserManagementException;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserGroupRespository;
@@ -16,6 +18,7 @@ use App\Util\UserManagementUtility;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Response;
 
 class GroupManager implements GroupManagerInterface
 {
@@ -56,27 +59,42 @@ class GroupManager implements GroupManagerInterface
      */
     public function createGroup(GroupDTO $groupDTO)
     {
-        $permissions=$this->userManagementUtility->getUserPermissions($groupDTO->getInitiator());
-        foreach ($permissions as $key => $value){
-            if ("GROUP_CREATE"==$value->{'name'}){
-                $this->saveGroup($groupDTO);
+        $initiatorPermissions=$this->userManagementUtility->getUserPermissions($groupDTO->getInitiator());
+        foreach ($initiatorPermissions as $key => $value){
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","CREATE");
+            if (strcmp($initiatorAction, $value->{'name'})==0){
+                $groupId=$this->saveGroup($groupDTO);
+                return $groupId;
             }
         }
-        return $this;
+        throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }
 
-    private function saveGroup($groupDTO): void
+    public function deleteGroup(DeleteGroupDTO $deleteGroupRequest)
     {
+        $initiatorPermissions=$this->userManagementUtility->getUserPermissions($deleteGroupRequest->getInitiator());
+        foreach ($initiatorPermissions as $key => $value){
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","DELETE");
+            if (strcmp($initiatorAction, $value->{'name'})==0){
+                $isGroupAssigned= $this->userGroupRespository->isGroupMapped($deleteGroupRequest->getGroup());
+                if($isGroupAssigned)
+                    return $this;
+                $this->groupRepository->delete($deleteGroupRequest->getGroup());
+            }
+        }
+        throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
+    }
+
+    private function saveGroup($groupDTO)
+    {
+        $groupId=Uuid::uuid1();
         $group = new Group();
         $group->setCreatedOn(time());
         $group->setUpdatedBy($groupDTO->getInitiator());
-        $group->setGroupId(Uuid::uuid1());
+        $group->setGroupId($groupId);
         $group->setName($groupDTO->getName());
-        try {
-            $this->groupRepository->save($group);
-        }  catch (Exception $e) {
-            print_r($e);
-        }
+        $this->groupRepository->save($group);
+        return $groupId;
     }
 
     /**
@@ -115,12 +133,4 @@ class GroupManager implements GroupManagerInterface
         return $this;
     }
 
-    public function deleteGroup(DeleteGroupRequest $deleteGroupRequest)
-    {
-        $isGroupAssigned= $this->userGroupRespository->isGroupMapped($deleteGroupRequest->getGroup());
-        if($isGroupAssigned)
-            return $this;
-        $this->groupRepository->delete($deleteGroupRequest->getGroup());
-        return $this;
-    }
 }

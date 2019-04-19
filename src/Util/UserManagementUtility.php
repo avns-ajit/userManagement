@@ -43,7 +43,7 @@ class UserManagementUtility
      */
     public function getUserPermissions($user){
 
-        $userDetails=$this->userRepository->findByUser($user);
+        $userDetails=$this->userRepository->findInitiator($user);
         $roleIds = array();
         foreach ($userDetails->getRoles() as $key => $value) {
             $roleId=$value->{'id'};
@@ -78,9 +78,9 @@ class UserManagementUtility
     }
 
 
-    public function generateInitiatorAction($role,$action)
+    public function generateInitiatorAction($type,$action)
     {
         $seperator="_";
-        return $role.$seperator.$action;
+        return $type.$seperator.$action;
     }
 }

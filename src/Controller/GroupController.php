@@ -4,6 +4,8 @@
 namespace App\Controller;
 
 
+use App\Entity\Group;
+use App\Response\GroupResponse;
 use App\Util\UserManagementUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use App\DTO\GroupDTO;
 use App\DTO\UserGroupRequest;
-use App\DTO\DeleteGroupRequest;
+use App\DTO\DeleteGroupDTO;
 
 
 /**
@@ -57,27 +59,27 @@ class GroupController extends AbstractController
         $errors = $this->validator->validate($groupDTO);
         if (count($errors) > 0) {
             $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
-            return $this->userManagementUtility->generateJsonResponse($baseResponse);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $groupId=$this->groupManager->createGroup($groupDTO);
         $groupResponse = $this->createGroupResponse($groupDTO, $groupId);
-        return $this->userManagementUtility->generateJsonResponse($groupResponse);
+        return $this->userManagementUtility->generateJsonResponse($groupResponse,Response::HTTP_OK);
     }
 
     /**
      * @Route("/delete")
-     * @ParamConverter("deleteGroupRequest", converter="fos_rest.request_body")
+     * @ParamConverter("deleteGroupDTO", converter="fos_rest.request_body")
      */
-    public function delete(DeleteGroupRequest $deleteGroupRequest)
+    public function delete(DeleteGroupDTO $deleteGroupDTO)
     {
-        $errors = $this->validator->validate($deleteGroupRequest);
+        $errors = $this->validator->validate($deleteGroupDTO);
         if (count($errors) > 0) {
-            return $this->validationFailedResponse($errors);
+            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
-        $this->groupManager->deleteGroup($deleteGroupRequest);
-        $response = new Response(json_encode($deleteGroupRequest->getGroup()));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        $this->groupManager->deleteGroup($deleteGroupDTO);
+        $userResponse = $this->deleteGroupResponse($deleteGroupDTO);
+        return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
     }
 
     /**
@@ -122,21 +124,21 @@ class GroupController extends AbstractController
         return $response;
     }
 
-    private function createGroupResponse(UserDTO $groupDTO, $userId): UserResponse
+    private function createGroupResponse(GroupDTO $groupDTO, $groupId): GroupResponse
     {
-        $userResponse = new UserResponse();
-        $userResponse->setUser($userId);
-        $userResponse->setName($groupDTO->getName());
-        $userResponse->setMessage("User Successfully Created");
-        return $userResponse;
+        $groupResponse = new GroupResponse();
+        $groupResponse->setGroup($groupId);
+        $groupResponse->setName($groupDTO->getName());
+        $groupResponse->setMessage("Group Successfully Created");
+        return $groupResponse;
     }
 
-    private function deleteGroupResponse(DeleteUserDTO $deleteUserDTO): UserResponse
+    private function deleteGroupResponse(DeleteGroupDTO $deleteGroupDTO): GroupResponse
     {
-        $userResponse = new UserResponse();
-        $userResponse->setUser($deleteUserDTO->getUser());
-        $userResponse->setMessage("User Deleted Created");
-        return $userResponse;
+        $groupResponse = new GroupResponse();
+        $groupResponse->setGroup($deleteGroupDTO->getGroup());
+        $groupResponse->setMessage("Group Successfully Deleted");
+        return $groupResponse;
     }
 
 

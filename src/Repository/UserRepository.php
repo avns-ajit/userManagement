@@ -35,6 +35,18 @@ class UserRepository extends ServiceEntityRepository
     {
         $user=$this->findOneBy(['userId' => $userId]);
         if(!isset($user))
+            throw new UserManagementException(UserManagementConstants::USER_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
+        return $user;
+    }
+
+    /**
+     * @param string $userId
+     * @return User
+     */
+    public function findInitiator(string $userId): User
+    {
+        $user=$this->findOneBy(['userId' => $userId]);
+        if(!isset($user))
             throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
         return $user;
     }
@@ -52,8 +64,19 @@ class UserRepository extends ServiceEntityRepository
 
     public function delete(User $user)
     {
-        $this->_em->remove($user);
-        $this->_em->flush();
+        $this->_em->getConnection()->beginTransaction();
+        try {
+            $this->_em->remove($user);
+            $this->_em->createQuery('delete from App\Entity\UserRole ur where ur.userId in(:userId)')->setParameter('userId', $user->getUserId())
+                ->getResult();
+            $this->_em->createQuery('delete from App\Entity\UserGroup ug where ug.userId in(:userId)')->setParameter('userId', $user->getUserId())
+                ->getResult();
+            $this->_em->flush();
+            $this->_em->getConnection()->commit();
+        } catch (Exception $e) {
+            $this->_em->getConnection()->rollBack();
+            throw $e;
+        }
     }
 
 }

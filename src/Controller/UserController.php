@@ -104,7 +104,7 @@ class UserController extends AbstractController
     {
         $userResponse = new UserResponse();
         $userResponse->setUser($deleteUserDTO->getUser());
-        $userResponse->setMessage("User Deleted Created");
+        $userResponse->setMessage("User Successfully Deleted");
         return $userResponse;
     }
 
