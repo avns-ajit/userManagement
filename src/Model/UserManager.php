@@ -4,6 +4,7 @@
 namespace App\Model;
 
 
+use App\DTO\DeleteUserRequest;
 use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Entity\UserRole;
@@ -101,4 +102,20 @@ class UserManager implements UserManagerInterface
         $this->userRoleRepository->save($userRole);
     }
 
+    public function delete(DeleteUserRequest $deleteUserRequest)
+    {
+        $permissions=$this->userManagementUtility->getUserPermissions($deleteUserRequest->getInitiator());
+        foreach ($permissions as $key => $value){
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("USER","DELETE");
+            if ($initiatorAction==$value->{'name'}){
+                $user= $this->userRepository->findByUser($deleteUserRequest->getUser());
+                if(isset($user)) {
+                    $this->userRepository->delete($user);
+                    $this->userRoleRepository->delete($deleteUserRequest->getUser());
+                }
+                return $this;
+            }
+        }
+        return $this;
+    }
 }

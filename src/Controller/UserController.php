@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\DTO\UserDTO;
+use App\DTO\DeleteUserRequest;
 use App\Model\UserManagerInterface;
 
 
@@ -45,6 +46,23 @@ class UserController extends AbstractController
         $response = new Response(json_encode($userDTO->getName()));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
+    }
+
+    /**
+     * @Route("/delete")
+     * @ParamConverter("deleteUserRequest", converter="fos_rest.request_body")
+     */
+    public function delete(DeleteUserRequest $deleteUserRequest,ValidatorInterface $validator)
+    {
+        $errors = $validator->validate($deleteUserRequest);
+        if (count($errors) > 0) {
+            return $this->validationFailedResponse($errors);
+        }
+        $this->userManager->delete($deleteUserRequest);
+        $response = new Response(json_encode($deleteUserRequest->getUser()));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+
     }
 
     private function validationFailedResponse($errors)

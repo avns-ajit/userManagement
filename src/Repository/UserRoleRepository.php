@@ -32,4 +32,11 @@ class UserRoleRepository extends ServiceEntityRepository
         $this->_em->persist($userRole);
         $this->_em->flush();
     }
+
+    public function delete($user)
+    {
+        $this->createNamedQuery('delete') ->setParameter('userId', $user)
+            ->getResult();
+    }
+
 }
