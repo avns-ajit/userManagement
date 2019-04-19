@@ -5,14 +5,12 @@ namespace App\Model;
 
 
 use App\DTO\UserDTO;
-use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\UserRole;
 use App\Repository\UserRepository;
 use App\Repository\UserRoleRepository;
 use App\Repository\RoleRepository;
 use App\Util\UserManagementUtility;
-use Doctrine\Common\Collections\ArrayCollection;
 use Ramsey\Uuid\Uuid;
 
 class UserManager implements UserManagerInterface
@@ -54,7 +52,7 @@ class UserManager implements UserManagerInterface
     {
         $permissions=$this->userManagementUtility->getUserPermissions($userDTO->getInitiator());
         foreach ($permissions as $key => $value){
-            $initiatorAction=$this->userManagementUtility->generateInitiatorAction($userDTO->getRole(),"ADD");
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction($userDTO->getRole(),"CREATE");
             if ($initiatorAction==$value->{'name'}){
                 $this->saveDetails($userDTO);
             }

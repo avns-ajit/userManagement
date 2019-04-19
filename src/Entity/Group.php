@@ -3,7 +3,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
- * @ORM\Table(name="group")
+ * @ORM\Table(name="`group`")
  */
 class Group {
     /**
@@ -23,14 +23,14 @@ class Group {
     /**
      * @ORM\Column(name="is_deleted",type="boolean")
      */
-    public $isDeleted;
+    public $isDeleted=false;
     /**
      * @ORM\Column(name="created_on",type="bigint")
      */
     public $createdOn;
 
     /**
-     * @ORM\Column(name="updated_by",type="string", length=100)
+     * @ORM\Column(name="updated_by",type="string", length=255)
      */
     public $updatedBy;
 
@@ -46,6 +46,7 @@ class Group {
     {
         return $this->id;
     }
+
 
     /**
      * @return mixed

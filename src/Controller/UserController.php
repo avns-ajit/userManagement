@@ -32,10 +32,10 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/add")
+     * @Route("/create")
      * @ParamConverter("userDTO", converter="fos_rest.request_body")
      */
-    public function add(UserDTO $userDTO,ValidatorInterface $validator)
+    public function create(UserDTO $userDTO,ValidatorInterface $validator)
     {
         $errors = $validator->validate($userDTO);
         if (count($errors) > 0) {

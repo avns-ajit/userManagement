@@ -29,7 +29,7 @@ class UserGroup {
     public $createdOn;
 
     /**
-     * @ORM\Column(name="updated_by",type="string", length=100)
+     * @ORM\Column(name="updated_by",type="string", length=255)
      */
     public $updatedBy;
 
