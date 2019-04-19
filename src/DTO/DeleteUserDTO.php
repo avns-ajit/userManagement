@@ -6,7 +6,7 @@ namespace App\DTO;
 use \JMS\Serializer\Annotation\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-class DeleteUserRequest
+class DeleteUserDTO
 {
 
     /**

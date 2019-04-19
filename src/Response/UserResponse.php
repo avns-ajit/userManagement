@@ -7,7 +7,7 @@ namespace App\Response;
 class UserResponse extends BaseResponse
 {
 
-    private $userId;
+    private $user;
 
     private $role;
 
@@ -16,17 +16,17 @@ class UserResponse extends BaseResponse
     /**
      * @return mixed
      */
-    public function getUserId()
+    public function getUser()
     {
-        return $this->userId;
+        return $this->user;
     }
 
     /**
-     * @param mixed $userId
+     * @param mixed $user
      */
-    public function setUserId($userId): void
+    public function setUser($user): void
     {
-        $this->userId = $userId;
+        $this->user = $user;
     }
 
     /**

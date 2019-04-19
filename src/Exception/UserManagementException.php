@@ -29,6 +29,11 @@ class UserManagementException extends HttpException implements ExceptionInterfac
                 $description="Initiator not authorized to perform this action";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
+            case UserManagementConstants::USER_NOT_AVAILABLE:
+                $customCode=1003;
+                $description="Given user is not present, Please check available users";
+                parent::__construct($code, $description,null,[],$customCode);
+                break;
 
             default:
                 $customCode=1000;

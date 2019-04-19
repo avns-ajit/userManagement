@@ -4,7 +4,7 @@
 namespace App\Model;
 
 
-use App\DTO\DeleteUserRequest;
+use App\DTO\DeleteUserDTO;
 use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Entity\UserRole;
@@ -70,7 +70,23 @@ class UserManager implements UserManagerInterface
 
             }
         }
-        //TODO : move to error codes and messages.
+        throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
+    }
+
+    public function delete(DeleteUserDTO $deleteUserDTO)
+    {
+        $initiatorPermissions=$this->userManagementUtility->getUserPermissions($deleteUserDTO->getInitiator());
+        foreach ($initiatorPermissions as $key => $value){
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("USER","DELETE");
+            if (strcmp($initiatorAction, $value->{'name'})==0){
+                $user= $this->userRepository->findByUser($deleteUserDTO->getUser());
+                if(!isset($user))
+                    throw new UserManagementException(UserManagementConstants::USER_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
+                $this->userRepository->delete($user);
+                $this->userRoleRepository->delete($deleteUserDTO->getUser());
+                return $this;
+            }
+        }
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }
 
@@ -115,20 +131,4 @@ class UserManager implements UserManagerInterface
         $this->userRoleRepository->save($userRole);
     }
 
-    public function delete(DeleteUserRequest $deleteUserRequest)
-    {
-        $permissions=$this->userManagementUtility->getUserPermissions($deleteUserRequest->getInitiator());
-        foreach ($permissions as $key => $value){
-            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("USER","DELETE");
-            if ($initiatorAction==$value->{'name'}){
-                $user= $this->userRepository->findByUser($deleteUserRequest->getUser());
-                if(isset($user)) {
-                    $this->userRepository->delete($user);
-                    $this->userRoleRepository->delete($deleteUserRequest->getUser());
-                }
-                return $this;
-            }
-        }
-        return $this;
-    }
 }

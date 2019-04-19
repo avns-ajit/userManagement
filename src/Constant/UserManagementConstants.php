@@ -10,4 +10,7 @@ class UserManagementConstants
 
     const NOT_AUTHORIZED = 'NOT_AUTHORIZED';
 
+    const USER_NOT_AVAILABLE = 'USER_NOT_AVAILABLE';
+
+
 }

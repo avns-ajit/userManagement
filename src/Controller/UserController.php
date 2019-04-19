@@ -4,14 +4,13 @@
 namespace App\Controller;
 
 use App\Response\UserResponse;
-use http\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\DTO\UserDTO;
-use App\DTO\DeleteUserRequest;
+use App\DTO\DeleteUserDTO;
 use App\Model\UserManagerInterface;
 use App\Response\BaseResponse;
 
@@ -63,22 +62,18 @@ class UserController extends AbstractController
 
     /**
      * @Route("/delete")
-     * @ParamConverter("deleteUserRequest", converter="fos_rest.request_body")
+     * @ParamConverter("deleteUserDTO", converter="fos_rest.request_body")
      */
-    public function delete(DeleteUserRequest $deleteUserRequest)
+    public function delete(DeleteUserDTO $deleteUserDTO)
     {
-        $errors = $this->validator->validate($deleteUserRequest);
+        $errors = $this->validator->validate($deleteUserDTO);
         if (count($errors) > 0) {
-            $data="";
-            foreach ($errors as $key => $value){
-                $data=$data.$value->getMessage().",";
-            }
-            return $this->validationFailedResponse($data);
+            $baseResponse=$this->createBaseResponse($errors);
+            return $this->generateJsonResponse($baseResponse);
         }
-        $this->userManager->delete($deleteUserRequest);
-        $response = new Response(json_encode($deleteUserRequest->getUser()));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        $this->userManager->delete($deleteUserDTO);
+        $userResponse = $this->deleteUserResponse($deleteUserDTO);
+        return $this->generateJsonResponse($userResponse);
 
     }
 
@@ -114,10 +109,18 @@ class UserController extends AbstractController
     private function createUserResponse(UserDTO $userDTO, $userId): UserResponse
     {
         $userResponse = new UserResponse();
-        $userResponse->setUserId($userId);
+        $userResponse->setUser($userId);
         $userResponse->setRole($userDTO->getRole());
         $userResponse->setName($userDTO->getName());
         $userResponse->setMessage("User Successfully Created");
+        return $userResponse;
+    }
+
+    private function deleteUserResponse(DeleteUserDTO $deleteUserDTO): UserResponse
+    {
+        $userResponse = new UserResponse();
+        $userResponse->setUser($deleteUserDTO->getUser());
+        $userResponse->setMessage("User Deleted Created");
         return $userResponse;
     }
 
