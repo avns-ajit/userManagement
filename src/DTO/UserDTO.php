@@ -13,22 +13,19 @@ final class UserDTO
 {
     /**
      * @Type("string")
-     * @Assert\NotNull(message="user name cannot be null")
      * @Assert\NotBlank(message="user name cannot be empty")
      */
     private $name;
 
     /**
      * @Type("string")
-     * @Assert\NotNull(message="request initiator id cannot be null")
-     * @Assert\NotBlank(message="request initiator id cannot be empty")
+     * @Assert\NotBlank(message="request initiator cannot be empty")
      */
     private $initiator;
 
     /**
      * @Type("string")
-     * @Assert\NotNull(message="user id cannot be null")
-     * @Assert\NotBlank(message="user id cannot be empty")
+     * @Assert\NotBlank(message="user role cannot be empty")
      */
     private $role;
 

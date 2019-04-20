@@ -7,13 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="user")
  *
  */
-class  User {
-    /**
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    public $id;
+class  User extends BaseEntity {
+
     /**
      * @ORM\Column(type="string", length=255)
      *
@@ -55,30 +50,6 @@ class  User {
     public $isDeleted=false;
 
     /**
-     * @ORM\Column(name="created_on",type="bigint")
-     */
-    public $createdOn;
-
-    /**
-     * @ORM\Column(name="updated_by",type="string", length=255)
-     */
-    public $updatedBy;
-
-    /**
-     * @ORM\Column(name="updated_on",type="bigint",nullable=true)
-     */
-    public $updatedOn;
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-
-    /**
      * @return mixed
      */
     public function getName()
@@ -113,71 +84,7 @@ class  User {
     /**
      * @return mixed
      */
-    public function getIsDeleted()
-    {
-        return $this->isDeleted;
-    }
-
-    /**
-     * @param mixed $isDeleted
-     */
-    public function setIsDeleted($isDeleted): void
-    {
-        $this->isDeleted = $isDeleted;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCreatedOn()
-    {
-        return $this->createdOn;
-    }
-
-    /**
-     * @param mixed $createdOn
-     */
-    public function setCreatedOn($createdOn): void
-    {
-        $this->createdOn = $createdOn;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUpdatedBy()
-    {
-        return $this->updatedBy;
-    }
-
-    /**
-     * @param mixed $updatedBy
-     */
-    public function setUpdatedBy($updatedBy): void
-    {
-        $this->updatedBy = $updatedBy;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUpdatedOn()
-    {
-        return $this->updatedOn;
-    }
-
-    /**
-     * @param mixed $updatedOn
-     */
-    public function setUpdatedOn($updatedOn): void
-    {
-        $this->updatedOn = $updatedOn;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRoles(): Collection
+    public function getRoles()
     {
         return $this->roles;
     }
@@ -204,6 +111,22 @@ class  User {
     public function setGroups($groups): void
     {
         $this->groups = $groups;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param mixed $isDeleted
+     */
+    public function setIsDeleted($isDeleted): void
+    {
+        $this->isDeleted = $isDeleted;
     }
 
 

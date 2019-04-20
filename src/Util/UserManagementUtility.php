@@ -41,7 +41,7 @@ class UserManagementUtility
      * @param $user
      * @return mixed
      */
-    public function getUserPermissions($user){
+    public function checkPermissions($user){
 
         $userDetails=$this->userRepository->findInitiator($user);
         $roleIds = array();
@@ -55,12 +55,13 @@ class UserManagementUtility
 
     /**
      * @param $response
+     * @param $code
      * @return Response
      */
     public function generateJsonResponse($response,$code)
     {
-        $serializedEntity = $this->serializerInterface->serialize($response, 'json');
-        $response= new Response($serializedEntity);
+        $serializedResponse = $this->serializerInterface->serialize($response, 'json');
+        $response= new Response($serializedResponse);
         $response->headers->set('Content-Type', 'application/json');
         $response->setStatusCode($code);
         return $response;
@@ -77,7 +78,11 @@ class UserManagementUtility
         return $baseResponse;
     }
 
-
+    /**
+     * @param $type
+     * @param $action
+     * @return string
+     */
     public function generateInitiatorAction($type,$action)
     {
         $seperator="_";

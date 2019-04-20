@@ -38,6 +38,11 @@ class GroupRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
+    /**
+     * @param Group $group
+     * @throws ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function delete(Group $group)
     {
         $this->_em->remove($group);
@@ -45,7 +50,11 @@ class GroupRepository extends ServiceEntityRepository
     }
 
 
-    public function findByGroup(string $groupId): Group
+    /**
+     * @param string $groupId
+     * @return Group
+     */
+    public function checkGroup(string $groupId): Group
     {
         $group=$this->findOneBy(['groupId' => $groupId]);
         if(!isset($group))

@@ -23,10 +23,10 @@ class ExceptionListener
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        if (!$event->getException() instanceof ExceptionInterface) {
-            return;
+        $output=['message' => 'unknown error'];
+        if ($event->getException() instanceof ExceptionInterface) {
+            $output = ['message' => $event->getException()->getMessage(),'code' => $event->getException()->getCode() ];
         }
-        $output = ['message' => $event->getException()->getMessage(),'code' => $event->getException()->getCode() ];
         $response= new Response(json_encode($output));
         $response->headers->set('Content-Type', 'application/json');
         $response->setStatusCode($event->getException()->getStatusCode());

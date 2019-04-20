@@ -13,7 +13,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\DTO\UserDTO;
 use App\DTO\DeleteUserDTO;
 use App\Model\UserManagerInterface;
-use App\Response\BaseResponse;
 
 
 
@@ -43,6 +42,7 @@ class UserController extends AbstractController
      * UserController constructor.
      * @param UserManagerInterface $userManager
      * @param ValidatorInterface $validator
+     * @param UserManagementUtility $userManagementUtility
      */
     public function __construct(UserManagerInterface $userManager,ValidatorInterface $validator,UserManagementUtility $userManagementUtility)
     {
@@ -54,12 +54,14 @@ class UserController extends AbstractController
     /**
      * @Route("/create")
      * @ParamConverter("userDTO", converter="fos_rest.request_body")
+     * @param UserDTO $userDTO
+     * @return Response
      */
     public function create(UserDTO $userDTO)
     {
-        $errors = $this->validator->validate($userDTO);
-        if (count($errors) > 0) {
-            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+        $validationFailures = $this->validator->validate($userDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $userId=$this->userManager->create($userDTO);
@@ -70,16 +72,18 @@ class UserController extends AbstractController
     /**
      * @Route("/delete")
      * @ParamConverter("deleteUserDTO", converter="fos_rest.request_body")
+     * @param DeleteUserDTO $deleteUserDTO
+     * @return Response
      */
     public function delete(DeleteUserDTO $deleteUserDTO)
     {
-        $errors = $this->validator->validate($deleteUserDTO);
-        if (count($errors) > 0) {
-            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+        $validationFailures = $this->validator->validate($deleteUserDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $this->userManager->delete($deleteUserDTO);
-        $userResponse = $this->deleteUserResponse($deleteUserDTO);
+        $userResponse = $this->generateUserResponse($deleteUserDTO);
         return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
 
     }
@@ -100,7 +104,11 @@ class UserController extends AbstractController
         return $userResponse;
     }
 
-    private function deleteUserResponse(DeleteUserDTO $deleteUserDTO): UserResponse
+    /**
+     * @param DeleteUserDTO $deleteUserDTO
+     * @return UserResponse
+     */
+    private function generateUserResponse(DeleteUserDTO $deleteUserDTO): UserResponse
     {
         $userResponse = new UserResponse();
         $userResponse->setUser($deleteUserDTO->getUser());

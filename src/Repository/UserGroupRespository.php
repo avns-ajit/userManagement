@@ -27,13 +27,20 @@ class UserGroupRespository  extends ServiceEntityRepository
         );
     }
 
+    /**
+     * @param string $user
+     * @param string $group
+     */
     public function checkIfGroupAssigned(string $user,string $group)
     {
-         $count=$this->count(['userId' => $user,'groupId' => $group]);
+        $count=$this->count(['userId' => $user,'groupId' => $group]);
         if($count>0)
             throw new UserManagementException(UserManagementConstants::GROUP_ALREADY_ASSIGNED,Response::HTTP_FORBIDDEN);
     }
 
+    /**
+     * @param string $group
+     */
     public function checkUsersInGroup(string $group)
     {
         $count=$this->count(['groupId' => $group]);
@@ -41,7 +48,12 @@ class UserGroupRespository  extends ServiceEntityRepository
             throw new UserManagementException(UserManagementConstants::GROUP_NOT_EMPTY,Response::HTTP_FORBIDDEN);
     }
 
-    public function checkIfGroupHasUser(string $user,string $group)
+    /**
+     * @param string $user
+     * @param string $group
+     * @return UserGroup
+     */
+    public function checkIfGroupHasUser(string $user,string $group): UserGroup
     {
          $userGroup=$this->findOneBy(['userId' => $user,'groupId' => $group]);
          if(!isset($userGroup))
@@ -49,12 +61,22 @@ class UserGroupRespository  extends ServiceEntityRepository
          return $userGroup;
     }
 
+    /**
+     * @param UserGroup $userGroup
+     * @throws ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function save(UserGroup $userGroup)
     {
         $this->_em->persist($userGroup);
         $this->_em->flush();
     }
 
+    /**
+     * @param UserGroup $userGroup
+     * @throws ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function delete(UserGroup $userGroup)
     {
         $this->_em->remove($userGroup);

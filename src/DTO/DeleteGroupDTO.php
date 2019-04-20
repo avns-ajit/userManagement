@@ -12,15 +12,13 @@ class DeleteGroupDTO
 
     /**
      * @Type("string")
-     * @Assert\NotNull(message="group id cannot be null")
      * @Assert\NotBlank(message="group id cannot be empty")
      */
     private $group;
 
     /**
      * @Type("string")
-     * @Assert\NotNull(message="request initiator id cannot be null")
-     * @Assert\NotBlank(message="request initiator id cannot be empty")
+     * @Assert\NotBlank(message="request initiator cannot be empty")
      */
     private $initiator;
 

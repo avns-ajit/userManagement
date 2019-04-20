@@ -55,11 +55,11 @@ class GroupManager implements GroupManagerInterface
 
     /**
      * @param GroupDTO $groupDTO
-     * @return mixed
+     * @return mixed|\Ramsey\Uuid\UuidInterface
      */
     public function createGroup(GroupDTO $groupDTO)
     {
-        $initiatorPermissions=$this->userManagementUtility->getUserPermissions($groupDTO->getInitiator());
+        $initiatorPermissions=$this->userManagementUtility->checkPermissions($groupDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","CREATE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
@@ -72,11 +72,11 @@ class GroupManager implements GroupManagerInterface
 
     public function deleteGroup(DeleteGroupDTO $deleteGroupRequest)
     {
-        $initiatorPermissions=$this->userManagementUtility->getUserPermissions($deleteGroupRequest->getInitiator());
+        $group= $this->groupRepository->checkGroup($deleteGroupRequest->getGroup());
+        $initiatorPermissions=$this->userManagementUtility->checkPermissions($deleteGroupRequest->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","DELETE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
-                $group= $this->groupRepository->findByGroup($deleteGroupRequest->getGroup());
                 $this->userGroupRespository->checkUsersInGroup($deleteGroupRequest->getGroup());
                 $this->groupRepository->delete($group);
             }
@@ -84,6 +84,12 @@ class GroupManager implements GroupManagerInterface
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }
 
+    /**
+     * @param $groupDTO
+     * @return \Ramsey\Uuid\UuidInterface
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
     private function saveGroup($groupDTO)
     {
         $groupId=Uuid::uuid1();
@@ -97,26 +103,30 @@ class GroupManager implements GroupManagerInterface
     }
 
     /**
-     * @param UserGroupDTO $userGroupRequest
-     * @return $this
+     * @param UserGroupDTO $userGroupDTO
+     * @return $this|mixed
      */
     public function addToGroup(UserGroupDTO $userGroupDTO)
     {
-        $this->groupRepository->findByGroup($userGroupDTO->getGroup());
+        $this->groupRepository->checkGroup($userGroupDTO->getGroup());
         $this->userGroupRespository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
         $this->saveUserGroup($userGroupDTO);
-        return $this;
-
     }
 
+    /**
+     * @param UserGroupDTO $userGroupDTO
+     * @return $this|mixed
+     */
     public function removeFromGroup(UserGroupDTO $userGroupDTO)
     {
-        $this->groupRepository->findByGroup($userGroupDTO->getGroup());
-        $userGroup= $this->userGroupRespository->findUserGroup($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->groupRepository->checkGroup($userGroupDTO->getGroup());
+        $userGroup= $this->userGroupRespository->checkIfGroupHasUser($userGroupDTO->getUser(),$userGroupDTO->getGroup());
         $this->userGroupRespository->delete($userGroup);
-        return $this;
     }
 
+    /**
+     * @param $userGroupDTO
+     */
     private function saveUserGroup($userGroupDTO): void
     {
         $userGroup = new UserGroup();

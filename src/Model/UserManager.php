@@ -26,9 +26,9 @@ class UserManager implements UserManagerInterface
     private $userRepository;
 
     /**
-     * @var RoleRespository
+     * @var RoleRepository
      */
-    private $roleRespository;
+    private $roleRepository;
 
     /**
      * @var UserManagementUtility
@@ -57,14 +57,11 @@ class UserManager implements UserManagerInterface
      */
     public function create(UserDTO $userDTO)
     {
-        $initiatorPermissions=$this->userManagementUtility->getUserPermissions($userDTO->getInitiator());
+        $initiatorPermissions=$this->userManagementUtility->checkPermissions($userDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction($userDTO->getRole(),"CREATE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
-                //TODO: role Details can be cached to avoid DB calls.
-                $role = $this->roleRepository->findByName($userDTO->getRole());
-                if(!isset($role))
-                    throw new UserManagementException(UserManagementConstants::ROLE_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
+                $role = $this->roleRepository->checkRole($userDTO->getRole());
                 $userId=$this->saveDetails($userDTO,$role);
                 return $userId;
 
@@ -73,10 +70,17 @@ class UserManager implements UserManagerInterface
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }
 
+    /**
+     * @param DeleteUserDTO $deleteUserDTO
+     * @return $this|mixed
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function delete(DeleteUserDTO $deleteUserDTO)
     {
-        $user= $this->userRepository->findByUser($deleteUserDTO->getUser());
-        $initiatorPermissions=$this->userManagementUtility->getUserPermissions($deleteUserDTO->getInitiator());
+        $user= $this->userRepository->checkUser($deleteUserDTO->getUser());
+        $initiatorPermissions=$this->userManagementUtility->checkPermissions($deleteUserDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             foreach ($user->getRoles() as $role){
                 $initiatorAction=$this->userManagementUtility->generateInitiatorAction($role,"DELETE");
@@ -85,12 +89,18 @@ class UserManager implements UserManagerInterface
                     return $this;
                 }
             }
-
         }
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }
 
 
+    /**
+     * @param $userDTO
+     * @param $role
+     * @return \Ramsey\Uuid\UuidInterface
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function saveDetails($userDTO,$role)
     {
         $userId=Uuid::uuid1();
@@ -101,7 +111,7 @@ class UserManager implements UserManagerInterface
 
     /**
      * @param $userDTO
-     * @param \Ramsey\Uuid\UuidInterface $userId
+     * @param $userId
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -117,7 +127,8 @@ class UserManager implements UserManagerInterface
 
     /**
      * @param $userDTO
-     * @param \Ramsey\Uuid\UuidInterface $userId
+     * @param $userId
+     * @param $role
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */

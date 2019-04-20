@@ -4,10 +4,13 @@
 namespace App\Repository;
 
 
+use App\Constant\UserManagementConstants;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Exception\UserManagementException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class RoleRepository extends ServiceEntityRepository
 {
@@ -27,18 +30,29 @@ class RoleRepository extends ServiceEntityRepository
     public function findPermissionsForRoles(array $roles)
     {
         $implodedRoles = implode(',', $roles);
-        return $this->createNamedQuery('getPermissions') ->setParameter('roles', $implodedRoles)
+        return $this->createNamedQuery('getPermissions') ->setParameter('role', $implodedRoles)
             ->getResult();
     }
 
+    /**
+     * @param string $roleIds
+     * @return Role
+     */
     public function findByRole(string $roleIds): Role
     {
         return $this->findOneBy(['id' => $roleIds]);
     }
 
-    public function findByName(string $roleName): Role
+    /**
+     * @param string $roleName
+     * @return Role
+     */
+    public function checkRole(string $roleName): Role
     {
-        return $this->findOneBy(['name' => $roleName]);
+        $role =$this->findOneBy(['name' => $roleName]);
+        if(!isset($role))
+            throw new UserManagementException(UserManagementConstants::ROLE_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
+        return $role;
     }
 
 }

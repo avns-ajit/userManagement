@@ -17,10 +17,22 @@ interface GroupManagerInterface
      */
     public function createGroup(GroupDTO $groupDTO);
 
+    /**
+     * @param UserGroupDTO $userGroupDTO
+     * @return mixed
+     */
     public function addToGroup(UserGroupDTO $userGroupDTO);
 
+    /**
+     * @param UserGroupDTO $userGroupDTO
+     * @return mixed
+     */
     public function removeFromGroup(UserGroupDTO $userGroupDTO);
 
+    /**
+     * @param DeleteGroupDTO $deleteGroupDTO
+     * @return mixed
+     */
     public function deleteGroup(DeleteGroupDTO $deleteGroupDTO);
 
 }

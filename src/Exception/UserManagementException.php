@@ -20,7 +20,7 @@ class UserManagementException extends HttpException implements ExceptionInterfac
         switch ($message){
             case UserManagementConstants::ROLE_NOT_AVAILABLE:
                 $customCode=1001;
-                $description="Given Role is not present, Please check available roles";
+                $description="Provided Role is not present, Please check available roles";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
 
@@ -31,38 +31,38 @@ class UserManagementException extends HttpException implements ExceptionInterfac
                 break;
             case UserManagementConstants::USER_NOT_AVAILABLE:
                 $customCode=1003;
-                $description="Given user is not present, Please check available users";
+                $description="Provided user is not present, Please check available users";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
             case UserManagementConstants::GROUP_NOT_EMPTY:
                 $customCode=1004;
-                $description="Given Group contains users,remove users from group to perform this action";
+                $description="Provided Group contains users,remove users from group to perform this action";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
             case UserManagementConstants::GROUP_NOT_AVAILABLE:
                 $customCode=1005;
-                $description="Given group is not present, Please check available groups";
+                $description="Provided group is not present, Please check available groups";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
             case UserManagementConstants::INITIATOR_NOT_AVAILABLE:
                 $customCode=1006;
-                $description="Given request initiator is not present, Please check available users";
+                $description="Provided request initiator is not present, Please check available users";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
             case UserManagementConstants::GROUP_NOT_ASSIGNED:
                 $customCode=1007;
-                $description="Given group is not assigned to user";
+                $description="Provided group is not assigned to user";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
             case UserManagementConstants::GROUP_ALREADY_ASSIGNED:
                 $customCode=1085;
-                $description="Given group is already assigned to user";
+                $description="Provided group is already assigned to user";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
 
             default:
                 $customCode=1000;
-                $description="unknown";
+                $description="Unknown Error";
                 parent::__construct($code, $description,null,[],$customCode);
                 break;
 

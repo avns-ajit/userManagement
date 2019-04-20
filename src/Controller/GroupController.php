@@ -43,6 +43,8 @@ class GroupController extends AbstractController
     /**
      * GroupController constructor.
      * @param GroupManagerInterface $groupManager
+     * @param ValidatorInterface $validator
+     * @param UserManagementUtility $userManagementUtility
      */
     public function __construct(GroupManagerInterface $groupManager,ValidatorInterface $validator,UserManagementUtility $userManagementUtility)
     {
@@ -54,12 +56,14 @@ class GroupController extends AbstractController
     /**
      * @Route("/create")
      * @ParamConverter("groupDTO", converter="fos_rest.request_body")
+     * @param GroupDTO $groupDTO
+     * @return Response
      */
     public function create(GroupDTO $groupDTO)
     {
-        $errors = $this->validator->validate($groupDTO);
-        if (count($errors) > 0) {
-            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+        $validationFailures = $this->validator->validate($groupDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $groupId=$this->groupManager->createGroup($groupDTO);
@@ -70,12 +74,14 @@ class GroupController extends AbstractController
     /**
      * @Route("/delete")
      * @ParamConverter("deleteGroupDTO", converter="fos_rest.request_body")
+     * @param DeleteGroupDTO $deleteGroupDTO
+     * @return Response
      */
     public function delete(DeleteGroupDTO $deleteGroupDTO)
     {
-        $errors = $this->validator->validate($deleteGroupDTO);
-        if (count($errors) > 0) {
-            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+        $validationFailures = $this->validator->validate($deleteGroupDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $this->groupManager->deleteGroup($deleteGroupDTO);
@@ -86,12 +92,14 @@ class GroupController extends AbstractController
     /**
      * @Route("/add")
      * @ParamConverter("userGroupDTO", converter="fos_rest.request_body")
+     * @param UserGroupDTO $userGroupDTO
+     * @return Response
      */
     public function add(UserGroupDTO $userGroupDTO)
     {
-        $errors = $this->validator->validate($userGroupDTO);
-        if (count($errors) > 0) {
-            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+        $validationFailures = $this->validator->validate($userGroupDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $this->groupManager->addToGroup($userGroupDTO);
@@ -105,9 +113,9 @@ class GroupController extends AbstractController
      */
     public function remove(UserGroupDTO $userGroupDTO)
     {
-        $errors = $this->validator->validate($userGroupDTO);
-        if (count($errors) > 0) {
-            $baseResponse=$this->userManagementUtility->createBaseResponse($errors);
+        $validationFailures = $this->validator->validate($userGroupDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $this->groupManager->removeFromGroup($userGroupDTO);
@@ -115,7 +123,11 @@ class GroupController extends AbstractController
         return $this->userManagementUtility->generateJsonResponse($userGroupResponse,Response::HTTP_OK);
     }
 
-
+    /**
+     * @param GroupDTO $groupDTO
+     * @param $groupId
+     * @return GroupResponse
+     */
     private function createGroupResponse(GroupDTO $groupDTO, $groupId): GroupResponse
     {
         $groupResponse = new GroupResponse();
@@ -125,6 +137,10 @@ class GroupController extends AbstractController
         return $groupResponse;
     }
 
+    /**
+     * @param DeleteGroupDTO $deleteGroupDTO
+     * @return GroupResponse
+     */
     private function deleteGroupResponse(DeleteGroupDTO $deleteGroupDTO): GroupResponse
     {
         $groupResponse = new GroupResponse();
@@ -133,12 +149,16 @@ class GroupController extends AbstractController
         return $groupResponse;
     }
 
+    /**
+     * @param UserGroupDTO $userGroupRequest
+     * @return UserGroupResponse
+     */
     private function createUserGroupResponse(UserGroupDTO $userGroupRequest): UserGroupResponse
     {
         $userGroupResponse = new UserGroupResponse();
         $userGroupResponse->setGroup($userGroupRequest->setGroup());
         $userGroupResponse->setUser($userGroupRequest->setUser());
-        $userGroupResponse->setMessage("Group Successfully Created");
+        $userGroupResponse->setMessage("Group Action Successfully");
         return $userGroupResponse;
     }
 

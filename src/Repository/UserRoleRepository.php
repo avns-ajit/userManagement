@@ -33,6 +33,9 @@ class UserRoleRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
+    /**
+     * @param $user
+     */
     public function delete($user)
     {
         $this->createNamedQuery('delete') ->setParameter('userId', $user)
