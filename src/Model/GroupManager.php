@@ -73,11 +73,11 @@ class GroupManager implements GroupManagerInterface
     public function deleteGroup(DeleteGroupDTO $deleteGroupRequest)
     {
         $group= $this->groupRepository->checkGroup($deleteGroupRequest->getGroup());
+        $this->userGroupRepository->checkUsersInGroup($deleteGroupRequest->getGroup());
         $initiatorPermissions=$this->userManagementUtility->checkPermissions($deleteGroupRequest->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","DELETE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
-                $this->userGroupRepository->checkUsersInGroup($deleteGroupRequest->getGroup());
                 $this->groupRepository->delete($group);
                 return;
             }
@@ -91,13 +91,13 @@ class GroupManager implements GroupManagerInterface
      */
     public function addToGroup(UserGroupDTO $userGroupDTO)
     {
-        $user= $this->userRepository->checkUser($userGroupDTO->getUser());
+        $this->userRepository->checkUser($userGroupDTO->getUser());
+        $this->groupRepository->checkGroup($userGroupDTO->getGroup());
+        $this->userGroupRepository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
         $initiatorPermissions=$this->userManagementUtility->checkPermissions($userGroupDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","ADD");
             if (strcmp($initiatorAction, $value->{'name'})==0){
-                $this->groupRepository->checkGroup($userGroupDTO->getGroup());
-                $this->userGroupRepository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
                 $this->saveUserGroup($userGroupDTO);
                 return;
             }
@@ -111,13 +111,13 @@ class GroupManager implements GroupManagerInterface
      */
     public function removeFromGroup(UserGroupDTO $userGroupDTO)
     {
-        $user= $this->userRepository->checkUser($userGroupDTO->getUser());
+        $this->userRepository->checkUser($userGroupDTO->getUser());
+        $this->groupRepository->checkGroup($userGroupDTO->getGroup());
+        $userGroup= $this->userGroupRepository->checkIfGroupHasUser($userGroupDTO->getUser(),$userGroupDTO->getGroup());
         $initiatorPermissions=$this->userManagementUtility->checkPermissions($userGroupDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","REMOVE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
-                $this->groupRepository->checkGroup($userGroupDTO->getGroup());
-                $userGroup= $this->userGroupRepository->checkIfGroupHasUser($userGroupDTO->getUser(),$userGroupDTO->getGroup());
                 $this->userGroupRepository->delete($userGroup);
                 return;
             }

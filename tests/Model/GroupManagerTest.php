@@ -9,10 +9,12 @@ use App\DTO\DeleteGroupDTO;
 use App\DTO\DeleteUserDTO;
 use App\DTO\GroupDTO;
 use App\DTO\UserDTO;
+use App\DTO\UserGroupDTO;
 use App\Entity\Group;
 use App\Entity\Permission;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Entity\UserGroup;
 use App\Exception\UserManagementException;
 use App\Model\GroupManager;
 use App\Repository\GroupRepository;
@@ -99,9 +101,9 @@ class GroupManagerTest extends TestCase
         $deleteGroupDTO = $this->createDeleteGroupDTO();
         $this->userManagementUtilityMock->expects($this->once())
             ->method('generateInitiatorAction')
-            ->with(self::anything(),"DELETE")->willReturn("USER_DELETE");
+            ->with(self::anything(),"DELETE")->willReturn("GROUP_DELETE");
         $permission = new Permission();
-        $permission->setName("USER_DELETE");
+        $permission->setName("GROUP_DELETE");
         $this->userManagementUtilityMock->expects($this->once())
             ->method('checkPermissions')
             ->with($deleteGroupDTO->getInitiator())->willReturn(Array($permission));
@@ -118,54 +120,363 @@ class GroupManagerTest extends TestCase
         $this->assertNull($data);
     }
 
-//    /** @test */
-//    public function deleteInValidPermissionTest(){
-//        $user=new User();
-//        $role= new Role();
-//        $role->setName("USER");
-//        $user->setRoles(array($role));
-//        $deleteUserDTO = $this->createDeleteUserDTO();
-//        $this->userManagementUtilityMock->expects($this->once())
-//            ->method('generateInitiatorAction')
-//            ->with(self::anything(),"DELETE")->willReturn("USER_DELETE");
-//        $permission = new Permission();
-//        $permission->setName("USER_CREATE");
-//        $this->userManagementUtilityMock->expects($this->once())
-//            ->method('checkPermissions')
-//            ->with($deleteUserDTO->getInitiator())->willReturn(Array($permission));
-//        $this->userRepositoryMock->expects($this->once())
-//            ->method('checkUser')
-//            ->with($deleteUserDTO->getUser())->willReturn($user);
-//        $this->userRepositoryMock->expects($this->never())
-//            ->method('delete')
-//            ->with($user);
-//        $this->expectException(UserManagementException::class);
-//        $this->expectExceptionMessage("Initiator not authorized to perform this action");
-//        $data=$this->userManager->delete($deleteUserDTO);
-//    }
-//
-//    /** @test */
-//    public function deleteInValidUserTest(){
-//        $user=new User();
-//        $deleteUserDTO = $this->createDeleteUserDTO();
-//        $this->userManagementUtilityMock->expects($this->never())
-//            ->method('generateInitiatorAction')
-//            ->with(self::anything(),"DELETE")->willReturn("USER_DELETE");
-//        $permission = new Permission();
-//        $permission->setName("USER_CREATE");
-//        $this->userManagementUtilityMock->expects($this->never())
-//            ->method('checkPermissions')
-//            ->with($deleteUserDTO->getInitiator())->willReturn(Array($permission));
-//        $this->userRepositoryMock->expects($this->once())
-//            ->method('checkUser')
-//            ->with($deleteUserDTO->getUser())->willThrowException( new UserManagementException(UserManagementConstants::USER_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST));
-//        $this->userRepositoryMock->expects($this->never())
-//            ->method('delete')
-//            ->with($user);
-//        $this->expectException(UserManagementException::class);
-//        $this->expectExceptionMessage("Provided user is not present, Please check available users");
-//        $this->userManager->delete($deleteUserDTO);
-//    }
+    /** @test */
+    public function deleteGroupInValidPermissionTest(){
+        $group=new Group();
+        $deleteGroupDTO = $this->createDeleteGroupDTO();
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"DELETE")->willReturn("GROUP_DELETE");
+        $permission = new Permission();
+        $permission->setName("USER_DELETE");
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('checkPermissions')
+            ->with($deleteGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($deleteGroupDTO->getGroup())->willReturn($group);
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkUsersInGroup')
+            ->with($deleteGroupDTO->getGroup());
+        $this->groupRepositoryMock->expects($this->never())
+            ->method('delete')
+            ->with($group);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Initiator not authorized to perform this action");
+        $data=$this->groupManager->deleteGroup($deleteGroupDTO);
+    }
+
+    /** @test */
+    public function deleteInValidGroupTest(){
+        $group=new Group();
+        $deleteGroupDTO = $this->createDeleteGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"DELETE")->willReturn("GROUP_DELETE");
+        $permission = new Permission();
+        $permission->setName("USER_DELETE");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($deleteGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($deleteGroupDTO->getGroup())->willThrowException(new UserManagementException(UserManagementConstants::GROUP_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST));
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('checkUsersInGroup')
+            ->with($deleteGroupDTO->getGroup());
+        $this->groupRepositoryMock->expects($this->never())
+            ->method('delete')
+            ->with($group);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided group is not present, Please check available groups");
+        $this->groupManager->deleteGroup($deleteGroupDTO);
+    }
+
+    /** @test */
+    public function deleteGroupWithUsersTest(){
+        $group=new Group();
+        $deleteGroupDTO = $this->createDeleteGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"DELETE")->willReturn("GROUP_DELETE");
+        $permission = new Permission();
+        $permission->setName("GROUP_DELETE");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($deleteGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($deleteGroupDTO->getGroup())->willReturn($group);
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkUsersInGroup')
+            ->with($deleteGroupDTO->getGroup())->willThrowException(new UserManagementException(UserManagementConstants::GROUP_NOT_EMPTY,Response::HTTP_FORBIDDEN));
+        $this->groupRepositoryMock->expects($this->never())
+            ->method('delete')
+            ->with($group);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided Group contains users,remove users from group to perform this action");
+        $this->groupManager->deleteGroup($deleteGroupDTO);
+    }
+
+
+    /** @test */
+    public function addToGroupTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"ADD")->willReturn("GROUP_ADD");
+        $permission = new Permission();
+        $permission->setName("GROUP_ADD");
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkIfGroupAssigned')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('save')
+            ->with(self::anything());
+        $data=$this->groupManager->addToGroup($userGroupDTO);
+        $this->assertNull($data);
+    }
+
+    /** @test */
+    public function addToGroupInvalidUserTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"ADD")->willReturn("GROUP_ADD");
+        $permission = new Permission();
+        $permission->setName("GROUP_ADD");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->never())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser())->willThrowException(new UserManagementException(UserManagementConstants::USER_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST));
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('checkIfGroupAssigned')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('save')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided user is not present, Please check available users");
+        $this->groupManager->addToGroup($userGroupDTO);
+    }
+
+    /** @test */
+    public function addToGroupInvalidPermissionTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"ADD")->willReturn("GROUP_ADD");
+        $permission = new Permission();
+        $permission->setName("GROUP_DELETE");
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkIfGroupAssigned')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('save')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Initiator not authorized to perform this action");
+        $this->groupManager->addToGroup($userGroupDTO);
+    }
+
+    /** @test */
+    public function addToInvalidGroupTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"ADD")->willReturn("GROUP_ADD");
+        $permission = new Permission();
+        $permission->setName("GROUP_ADD");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup())->willThrowException(new UserManagementException(UserManagementConstants::GROUP_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST));;
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('checkIfGroupAssigned')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('save')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided group is not present, Please check available groups");
+        $this->groupManager->addToGroup($userGroupDTO);
+    }
+
+    /** @test */
+    public function addToAlreadyAssignedGroupTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"ADD")->willReturn("GROUP_ADD");
+        $permission = new Permission();
+        $permission->setName("GROUP_ADD");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkIfGroupAssigned')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup())->willThrowException(new UserManagementException(UserManagementConstants::GROUP_ALREADY_ASSIGNED,Response::HTTP_BAD_REQUEST));
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('save')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided group is already assigned to user");
+        $this->groupManager->addToGroup($userGroupDTO);
+    }
+
+    /** @test */
+    public function removeFromGroupTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"REMOVE")->willReturn("GROUP_REMOVE");
+        $permission = new Permission();
+        $permission->setName("GROUP_REMOVE");
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkIfGroupHasUser')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('delete')
+            ->with(self::anything());
+        $data=$this->groupManager->removeFromGroup($userGroupDTO);
+        $this->assertNull($data);
+    }
+
+    /** @test */
+    public function removeFromGroupInvalidUserTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"REMOVE")->willReturn("GROUP_REMOVE");
+        $permission = new Permission();
+        $permission->setName("GROUP_REMOVE");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->never())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser())->willThrowException(new UserManagementException(UserManagementConstants::USER_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST));
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('checkIfGroupHasUser')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('delete')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided user is not present, Please check available users");
+        $this->groupManager->removeFromGroup($userGroupDTO);
+    }
+
+    /** @test */
+    public function removeFromGroupInvalidPermissionTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"REMOVE")->willReturn("GROUP_REMOVE");
+        $permission = new Permission();
+        $permission->setName("GROUP_DELETE");
+        $this->userManagementUtilityMock->expects($this->once())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkIfGroupHasUser')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('delete')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Initiator not authorized to perform this action");
+        $this->groupManager->removeFromGroup($userGroupDTO);
+    }
+
+    /** @test */
+    public function removeFromInvalidGroupTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"REMOVE")->willReturn("GROUP_REMOVE");
+        $permission = new Permission();
+        $permission->setName("GROUP_REMOVE");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup())->willThrowException(new UserManagementException(UserManagementConstants::GROUP_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST));;
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('checkIfGroupHasUser')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('delete')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided group is not present, Please check available groups");
+        $this->groupManager->removeFromGroup($userGroupDTO);
+    }
+
+    /** @test */
+    public function removeFromAlreadyRemovedGroupTest(){
+        $userGroupDTO = $this->createUserGroupDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with(self::anything(),"REMOVE")->willReturn("GROUP_REMOVE");
+        $permission = new Permission();
+        $permission->setName("GROUP_REMOVE");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($userGroupDTO->getInitiator())->willReturn(Array($permission));
+        $this->groupRepositoryMock->expects($this->once())
+            ->method('checkGroup')
+            ->with($userGroupDTO->getGroup());
+        $this->userRepositoryMock->expects($this->once())
+            ->method('checkUser')
+            ->with($userGroupDTO->getUser());
+        $this->userGroupRepositoryMock->expects($this->once())
+            ->method('checkIfGroupHasUser')
+            ->with($userGroupDTO->getUser(),$userGroupDTO->getGroup())->willThrowException(new UserManagementException(UserManagementConstants::GROUP_NOT_ASSIGNED,Response::HTTP_BAD_REQUEST));
+        $this->userGroupRepositoryMock->expects($this->never())
+            ->method('delete')
+            ->with($userGroupDTO);
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided group is not assigned to user");
+        $this->groupManager->removeFromGroup($userGroupDTO);
+    }
+
 
 
     /**
@@ -185,6 +496,15 @@ class GroupManagerTest extends TestCase
         $deleteGroupDTO->setGroup("d324ea-6146-11e9-ad9d-24a074f0655e");
         $deleteGroupDTO->setInitiator("fdd86298-634e-11e9-89aa-24a074f0655");
         return $deleteGroupDTO;
+    }
+
+    private function createUserGroupDTO(): UserGroupDTO
+    {
+        $userGroupDTO = new UserGroupDTO();
+        $userGroupDTO->setGroup("d324ea-6146-11e9-ad9d-24a074f0655e");
+        $userGroupDTO->setUser("abcd-6146-11e9-ad9d-24a074f0655e");
+        $userGroupDTO->setInitiator("fdd86298-634e-11e9-89aa-24a074f0655");
+        return $userGroupDTO;
     }
 
 }

@@ -19,9 +19,9 @@ class UserManagementUtility
     private $userRepository;
 
     /**
-     * @var RoleRespository
+     * @var RoleRepository
      */
-    private $roleRespository;
+    private $roleRepository;
 
     /**
      * @var SerializerInterface
