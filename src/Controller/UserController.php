@@ -3,13 +3,17 @@
 
 namespace App\Controller;
 
+use App\Response\UserResponse;
+use App\Util\UserManagementUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\DTO\UserDTO;
+use App\DTO\DeleteUserDTO;
 use App\Model\UserManagerInterface;
+
 
 
 /**
@@ -17,57 +21,100 @@ use App\Model\UserManagerInterface;
  */
 class UserController extends AbstractController
 {
+
     /**
      * @var UserManagerInterface
      */
     private $userManager;
 
     /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
+    /**
+     * @var UserManagementUtility
+     */
+    private $userManagementUtility;
+
+
+    /**
      * UserController constructor.
      * @param UserManagerInterface $userManager
+     * @param ValidatorInterface $validator
+     * @param UserManagementUtility $userManagementUtility
      */
-    public function __construct(UserManagerInterface $userManager)
+    public function __construct(UserManagerInterface $userManager,ValidatorInterface $validator,UserManagementUtility $userManagementUtility)
     {
         $this->userManager = $userManager;
-    }
-    /**
-     *  @Route("/all")
-     */
-    public function listAction()
-    {
-        $number = random_int(0, 100);
-
-        $response = new Response(json_encode($number));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
-
+        $this->validator = $validator;
+        $this->userManagementUtility = $userManagementUtility;
     }
 
     /**
-     * @Route("/add")
+     * @Route("/create")
      * @ParamConverter("userDTO", converter="fos_rest.request_body")
+     * @param UserDTO $userDTO
+     * @return Response
      */
-    public function add(UserDTO $userDTO,ValidatorInterface $validator)
+    public function create(UserDTO $userDTO)
     {
-        $errors = $validator->validate($userDTO);
-        if (count($errors) > 0) {
-            return $this->validationFailedResponse($errors);
+        $validationFailures = $this->validator->validate($userDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
-        $this->userManager->createUser($userDTO);
-        $response = new Response(json_encode($userDTO->getName()));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
-
+        $userId=$this->userManager->create($userDTO);
+        $userResponse = $this->createUserResponse($userDTO, $userId);
+        return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
     }
 
-    protected function validationFailedResponse($errors)
+    /**
+     * @Route("/delete")
+     * @ParamConverter("deleteUserDTO", converter="fos_rest.request_body")
+     * @param DeleteUserDTO $deleteUserDTO
+     * @return Response
+     */
+    public function delete(DeleteUserDTO $deleteUserDTO)
     {
-        $errorsString = (string) $errors;
-        $response = new Response($errorsString);
-        $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-        return $response;
+        $validationFailures = $this->validator->validate($deleteUserDTO);
+        if (count($validationFailures) > 0) {
+            $baseResponse=$this->userManagementUtility->createBaseResponse($validationFailures);
+            return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
+        }
+        $this->userManager->delete($deleteUserDTO);
+        $userResponse = $this->generateUserResponse($deleteUserDTO);
+        return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
+
     }
+
+
+    /**
+     * @param UserDTO $userDTO
+     * @param $userId
+     * @return UserResponse
+     */
+    private function createUserResponse(UserDTO $userDTO, $userId): UserResponse
+    {
+        $userResponse = new UserResponse();
+        $userResponse->setUser($userId);
+        $userResponse->setRole($userDTO->getRole());
+        $userResponse->setName($userDTO->getName());
+        $userResponse->setMessage("User Successfully Created");
+        return $userResponse;
+    }
+
+    /**
+     * @param DeleteUserDTO $deleteUserDTO
+     * @return UserResponse
+     */
+    private function generateUserResponse(DeleteUserDTO $deleteUserDTO): UserResponse
+    {
+        $userResponse = new UserResponse();
+        $userResponse->setUser($deleteUserDTO->getUser());
+        $userResponse->setMessage("User Successfully Deleted");
+        return $userResponse;
+    }
+
 
 }

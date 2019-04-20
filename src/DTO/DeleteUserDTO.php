@@ -6,16 +6,14 @@ namespace App\DTO;
 use \JMS\Serializer\Annotation\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
-
-
-final class UserDTO
+class DeleteUserDTO
 {
+
     /**
      * @Type("string")
-     * @Assert\NotBlank(message="user name cannot be empty")
+     * @Assert\NotBlank(message="user id cannot be empty")
      */
-    private $name;
+    private $user;
 
     /**
      * @Type("string")
@@ -24,25 +22,19 @@ final class UserDTO
     private $initiator;
 
     /**
-     * @Type("string")
-     * @Assert\NotBlank(message="user role cannot be empty")
-     */
-    private $role;
-
-    /**
      * @return mixed
      */
-    public function getName()
+    public function getUser()
     {
-        return $this->name;
+        return $this->user;
     }
 
     /**
-     * @param mixed $name
+     * @param mixed $user
      */
-    public function setName($name): void
+    public function setUser($user): void
     {
-        $this->name = $name;
+        $this->user = $user;
     }
 
     /**
@@ -61,20 +53,5 @@ final class UserDTO
         $this->initiator = $initiator;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getRole()
-    {
-        return $this->role;
-    }
-
-    /**
-     * @param mixed $role
-     */
-    public function setRole($role): void
-    {
-        $this->role = $role;
-    }
 
 }

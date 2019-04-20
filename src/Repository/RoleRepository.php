@@ -4,11 +4,13 @@
 namespace App\Repository;
 
 
+use App\Constant\UserManagementConstants;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Exception\UserManagementException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use mysql_xdevapi\Collection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class RoleRepository extends ServiceEntityRepository
 {
@@ -23,23 +25,34 @@ class RoleRepository extends ServiceEntityRepository
 
     /**
      * @param array $roles
-     * @return Role
+     * @return mixed
      */
-    public function findPermissionsForRoles(array $roles): array
+    public function findPermissionsForRoles(array $roles)
     {
         $implodedRoles = implode(',', $roles);
-        $qb = $this->createQueryBuilder('a');
-        return  $qb
-            ->select('a')
-            ->Where('a.id IN (:roles)')
-            ->setParameter('roles', $implodedRoles)
-            ->getQuery()
+        return $this->createNamedQuery('getPermissions') ->setParameter('role', $implodedRoles)
             ->getResult();
     }
 
+    /**
+     * @param string $roleIds
+     * @return Role
+     */
     public function findByRole(string $roleIds): Role
     {
         return $this->findOneBy(['id' => $roleIds]);
+    }
+
+    /**
+     * @param string $roleName
+     * @return Role
+     */
+    public function checkRole(string $roleName): Role
+    {
+        $role =$this->findOneBy(['name' => $roleName]);
+        if(!isset($role))
+            throw new UserManagementException(UserManagementConstants::ROLE_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST);
+        return $role;
     }
 
 }

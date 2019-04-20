@@ -21,12 +21,25 @@ class UserRoleRepository extends ServiceEntityRepository
         );
     }
 
+
     /**
-     * @param string $userId
-     * @return UserRole
+     * @param UserRole $userRole
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function findByUser(string $user): UserRole
+    public function save(UserRole $userRole)
     {
-        return $this->findOneBy(['userId' => $user]);
+        $this->_em->persist($userRole);
+        $this->_em->flush();
     }
+
+    /**
+     * @param $user
+     */
+    public function delete($user)
+    {
+        $this->createNamedQuery('delete') ->setParameter('userId', $user)
+            ->getResult();
+    }
+
 }
