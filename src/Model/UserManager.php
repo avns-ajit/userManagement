@@ -17,6 +17,7 @@ use App\Util\UserManagementUtility;
 use Exception;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
+use Psr\Log\LoggerInterface;
 
 class UserManager implements UserManagerInterface
 {
@@ -47,7 +48,6 @@ class UserManager implements UserManagerInterface
         $this->roleRepository = $roleRepository;
         $this->userManagementUtility = $userManagementUtility;
         $this->userRoleRepository = $userRoleRepository;
-
     }
 
     /**
@@ -58,7 +58,6 @@ class UserManager implements UserManagerInterface
     public function create(UserDTO $userDTO)
     {
         $initiatorPermissions=$this->userManagementUtility->checkPermissions($userDTO->getInitiator());
-        print_r($initiatorPermissions);
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction($userDTO->getRole(),"CREATE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
@@ -83,6 +82,7 @@ class UserManager implements UserManagerInterface
         $initiatorPermissions=$this->userManagementUtility->checkPermissions($deleteUserDTO->getInitiator());
         foreach ($initiatorPermissions as $key => $value){
             foreach ($user->getRoles() as $role){
+                print_r("hi");
                 print_r($role);
                 $initiatorAction=$this->userManagementUtility->generateInitiatorAction($role->{'name'},"DELETE");
                 if (strcmp($initiatorAction, $value->{'name'})==0){

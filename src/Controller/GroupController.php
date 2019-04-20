@@ -85,7 +85,7 @@ class GroupController extends AbstractController
             return $this->userManagementUtility->generateJsonResponse($baseResponse,Response::HTTP_BAD_REQUEST);
         }
         $this->groupManager->deleteGroup($deleteGroupDTO);
-        $groupResponse = $this->deleteGroupResponse($deleteGroupDTO);
+        $groupResponse = $this->generateGroupResponse($deleteGroupDTO);
         return $this->userManagementUtility->generateJsonResponse($groupResponse,Response::HTTP_OK);
     }
 
@@ -141,7 +141,7 @@ class GroupController extends AbstractController
      * @param DeleteGroupDTO $deleteGroupDTO
      * @return GroupResponse
      */
-    private function deleteGroupResponse(DeleteGroupDTO $deleteGroupDTO): GroupResponse
+    private function generateGroupResponse(DeleteGroupDTO $deleteGroupDTO): GroupResponse
     {
         $groupResponse = new GroupResponse();
         $groupResponse->setGroup($deleteGroupDTO->getGroup());

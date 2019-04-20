@@ -13,7 +13,7 @@ use App\Entity\UserGroup;
 use App\Exception\UserManagementException;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
-use App\Repository\UserGroupRespository;
+use App\Repository\UserGroupRepository;
 use App\Util\UserManagementUtility;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -34,9 +34,9 @@ class GroupManager implements GroupManagerInterface
     private $userRepository;
 
     /**
-     * @var UserGroupRespository
+     * @var UserGroupRepository
      */
-    private $userGroupRespository;
+    private $userGroupRepository;
 
     /**
      * @var UserManagementUtility
@@ -44,12 +44,12 @@ class GroupManager implements GroupManagerInterface
     private $userManagementUtility;
 
 
-    public function __construct(GroupRepository $groupRepository,UserManagementUtility $userManagementUtility,UserRepository $userRepository,UserGroupRespository $userGroupRespository)
+    public function __construct(GroupRepository $groupRepository, UserManagementUtility $userManagementUtility, UserRepository $userRepository, UserGroupRepository $userGroupRepository)
     {
         $this->groupRepository = $groupRepository;
         $this->userManagementUtility = $userManagementUtility;
         $this->userRepository = $userRepository;
-        $this->userGroupRespository = $userGroupRespository;
+        $this->userGroupRepository = $userGroupRepository;
     }
 
 
@@ -77,7 +77,7 @@ class GroupManager implements GroupManagerInterface
         foreach ($initiatorPermissions as $key => $value){
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","DELETE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
-                $this->userGroupRespository->checkUsersInGroup($deleteGroupRequest->getGroup());
+                $this->userGroupRepository->checkUsersInGroup($deleteGroupRequest->getGroup());
                 $this->groupRepository->delete($group);
                 return;
             }
@@ -97,7 +97,7 @@ class GroupManager implements GroupManagerInterface
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","ADD");
             if (strcmp($initiatorAction, $value->{'name'})==0){
                 $this->groupRepository->checkGroup($userGroupDTO->getGroup());
-                $this->userGroupRespository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+                $this->userGroupRepository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
                 $this->saveUserGroup($userGroupDTO);
                 return;
             }
@@ -117,8 +117,8 @@ class GroupManager implements GroupManagerInterface
             $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","REMOVE");
             if (strcmp($initiatorAction, $value->{'name'})==0){
                 $this->groupRepository->checkGroup($userGroupDTO->getGroup());
-                $userGroup= $this->userGroupRespository->checkIfGroupHasUser($userGroupDTO->getUser(),$userGroupDTO->getGroup());
-                $this->userGroupRespository->delete($userGroup);
+                $userGroup= $this->userGroupRepository->checkIfGroupHasUser($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+                $this->userGroupRepository->delete($userGroup);
                 return;
             }
         }
@@ -135,7 +135,7 @@ class GroupManager implements GroupManagerInterface
         $userGroup->setUpdatedBy($userGroupDTO->getInitiator());
         $userGroup->setGroupId($userGroupDTO->getGroup());
         $userGroup->setUserId($userGroupDTO->getUser());
-        $this->userGroupRespository->save($userGroup);
+        $this->userGroupRepository->save($userGroup);
     }
 
     /**

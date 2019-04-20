@@ -12,11 +12,11 @@ use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserGroupRespository  extends ServiceEntityRepository
+class UserGroupRepository  extends ServiceEntityRepository
 {
 
     /**
-     * UserGroupRespository constructor.
+     * UserGroupRepository constructor.
      * @param RegistryInterface $registry
      */
     public function __construct(RegistryInterface $registry)
