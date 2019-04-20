@@ -88,7 +88,7 @@ class UserManagerTest extends TestCase
         $this->userManagementUtilityMock->expects($this->once())
             ->method('checkPermissions')
             ->with($userDTO->getInitiator())->willReturn(Array($permission));
-        $this->roleRepositoryMock->expects($this->never())
+        $this->roleRepositoryMock->expects($this->once())
             ->method('checkRole')
             ->with($userDTO->getRole())->willReturn(new Role());
         $this->userRepositoryMock->expects($this->never())
@@ -99,6 +99,33 @@ class UserManagerTest extends TestCase
             ->with(self::anything());
         $this->expectException(UserManagementException::class);
         $this->expectExceptionMessage("Initiator not authorized to perform this action");
+        $this->userManager->create($userDTO);
+    }
+
+    /** @test
+     */
+    public function createInValidRoleTest(){
+
+        $userDTO = $this->createUserDTO();
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('generateInitiatorAction')
+            ->with($userDTO->getRole(),"CREATE")->willReturn("USER_CREATE");
+        $permission = new Permission();
+        $permission->setName("USER_DELETE");
+        $this->userManagementUtilityMock->expects($this->never())
+            ->method('checkPermissions')
+            ->with($userDTO->getInitiator())->willReturn(Array($permission));
+        $this->roleRepositoryMock->expects($this->once())
+            ->method('checkRole')
+            ->with($userDTO->getRole())->willThrowException( new UserManagementException(UserManagementConstants::ROLE_NOT_AVAILABLE,Response::HTTP_BAD_REQUEST));
+        $this->userRepositoryMock->expects($this->never())
+            ->method('save')
+            ->with(self::anything());
+        $this->userRoleRepositoryMock->expects($this->never())
+            ->method('save')
+            ->with(self::anything());
+        $this->expectException(UserManagementException::class);
+        $this->expectExceptionMessage("Provided Role is not present, Please check available roles");
         $this->userManager->create($userDTO);
     }
 
