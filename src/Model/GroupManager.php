@@ -79,9 +79,63 @@ class GroupManager implements GroupManagerInterface
             if (strcmp($initiatorAction, $value->{'name'})==0){
                 $this->userGroupRespository->checkUsersInGroup($deleteGroupRequest->getGroup());
                 $this->groupRepository->delete($group);
+                return;
             }
         }
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
+    }
+
+    /**
+     * @param UserGroupDTO $userGroupDTO
+     * @return $this|mixed
+     */
+    public function addToGroup(UserGroupDTO $userGroupDTO)
+    {
+        $user= $this->userRepository->checkUser($userGroupDTO->getUser());
+        $initiatorPermissions=$this->userManagementUtility->checkPermissions($userGroupDTO->getInitiator());
+        foreach ($initiatorPermissions as $key => $value){
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","ADD");
+            if (strcmp($initiatorAction, $value->{'name'})==0){
+                $this->groupRepository->checkGroup($userGroupDTO->getGroup());
+                $this->userGroupRespository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+                $this->saveUserGroup($userGroupDTO);
+                return;
+            }
+        }
+        throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
+    }
+
+    /**
+     * @param UserGroupDTO $userGroupDTO
+     * @return $this|mixed
+     */
+    public function removeFromGroup(UserGroupDTO $userGroupDTO)
+    {
+        $user= $this->userRepository->checkUser($userGroupDTO->getUser());
+        $initiatorPermissions=$this->userManagementUtility->checkPermissions($userGroupDTO->getInitiator());
+        foreach ($initiatorPermissions as $key => $value){
+            $initiatorAction=$this->userManagementUtility->generateInitiatorAction("GROUP","REMOVE");
+            if (strcmp($initiatorAction, $value->{'name'})==0){
+                $this->groupRepository->checkGroup($userGroupDTO->getGroup());
+                $userGroup= $this->userGroupRespository->checkIfGroupHasUser($userGroupDTO->getUser(),$userGroupDTO->getGroup());
+                $this->userGroupRespository->delete($userGroup);
+                return;
+            }
+        }
+        throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
+    }
+
+    /**
+     * @param $userGroupDTO
+     */
+    private function saveUserGroup($userGroupDTO): void
+    {
+        $userGroup = new UserGroup();
+        $userGroup->setCreatedOn(time());
+        $userGroup->setUpdatedBy($userGroupDTO->getInitiator());
+        $userGroup->setGroupId($userGroupDTO->getGroup());
+        $userGroup->setUserId($userGroupDTO->getUser());
+        $this->userGroupRespository->save($userGroup);
     }
 
     /**
@@ -100,41 +154,6 @@ class GroupManager implements GroupManagerInterface
         $group->setName($groupDTO->getName());
         $this->groupRepository->save($group);
         return $groupId;
-    }
-
-    /**
-     * @param UserGroupDTO $userGroupDTO
-     * @return $this|mixed
-     */
-    public function addToGroup(UserGroupDTO $userGroupDTO)
-    {
-        $this->groupRepository->checkGroup($userGroupDTO->getGroup());
-        $this->userGroupRespository->checkIfGroupAssigned($userGroupDTO->getUser(),$userGroupDTO->getGroup());
-        $this->saveUserGroup($userGroupDTO);
-    }
-
-    /**
-     * @param UserGroupDTO $userGroupDTO
-     * @return $this|mixed
-     */
-    public function removeFromGroup(UserGroupDTO $userGroupDTO)
-    {
-        $this->groupRepository->checkGroup($userGroupDTO->getGroup());
-        $userGroup= $this->userGroupRespository->checkIfGroupHasUser($userGroupDTO->getUser(),$userGroupDTO->getGroup());
-        $this->userGroupRespository->delete($userGroup);
-    }
-
-    /**
-     * @param $userGroupDTO
-     */
-    private function saveUserGroup($userGroupDTO): void
-    {
-        $userGroup = new UserGroup();
-        $userGroup->setCreatedOn(time());
-        $userGroup->setUpdatedBy($userGroupDTO->getInitiator());
-        $userGroup->setGroupId($userGroupDTO->getGroup());
-        $userGroup->setUserId($userGroupDTO->getUser());
-        $this->userGroupRespository->save($userGroup);
     }
 
 

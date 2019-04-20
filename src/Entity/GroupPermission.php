@@ -1,6 +1,8 @@
 <?php 
 namespace App\Entity;
+
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\BaseEntity;
 /**
  * @ORM\Entity
  * @ORM\Table(name="group_permission")

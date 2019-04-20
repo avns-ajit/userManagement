@@ -156,8 +156,8 @@ class GroupController extends AbstractController
     private function createUserGroupResponse(UserGroupDTO $userGroupRequest): UserGroupResponse
     {
         $userGroupResponse = new UserGroupResponse();
-        $userGroupResponse->setGroup($userGroupRequest->setGroup());
-        $userGroupResponse->setUser($userGroupRequest->setUser());
+        $userGroupResponse->setGroup($userGroupRequest->getGroup());
+        $userGroupResponse->setUser($userGroupRequest->getUser());
         $userGroupResponse->setMessage("Group Action Successfully");
         return $userGroupResponse;
     }

@@ -2,6 +2,7 @@
 namespace App\Entity;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\BaseEntity;
 /**
  * @ORM\Entity
  * @ORM\Table(name="user")

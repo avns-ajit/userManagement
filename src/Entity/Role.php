@@ -4,6 +4,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\NamedQuery;
 use Doctrine\ORM\Mapping\NamedQueries;
+use App\Entity\BaseEntity;
 /**
  * @ORM\Entity
  * @ORM\Table(name="role")
