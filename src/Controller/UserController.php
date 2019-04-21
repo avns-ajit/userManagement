@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Response\UserResponse;
 use App\Util\UserManagementUtility;
+use http\Exception\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,6 +86,18 @@ class UserController extends AbstractController
         $this->userManager->delete($deleteUserDTO);
         $userResponse = $this->generateUserResponse($deleteUserDTO);
         return $this->userManagementUtility->generateJsonResponse($userResponse,Response::HTTP_OK);
+
+    }
+
+
+    /**
+     * @Route("/list/all")
+     * @return Response
+     */
+    public function listUsers()
+    {
+        $users=$this->userManagementUtility->listUsers();
+        return $this->userManagementUtility->generateJsonResponse($users,Response::HTTP_OK);
 
     }
 

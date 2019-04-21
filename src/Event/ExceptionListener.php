@@ -24,6 +24,12 @@ class ExceptionListener
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
         if (!$event->getException() instanceof ExceptionInterface) {
+            $output = ['message' => 'Unknown Error'];
+            $response= new Response(json_encode($output));
+            $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(500);
+            $event->setResponse($response);
+            $this->logger->error($event->getException());
             return;
         }
         $output = ['message' => $event->getException()->getMessage(),'code' => $event->getException()->getCode() ];

@@ -13,7 +13,7 @@ class Group extends BaseEntity {
      */
     public $name;
     /**
-     * @ORM\Column(name="group_id",type="string", length=255)
+     * @ORM\Column(name="group_id",type="string", length=60)
      */
     public $groupId;
     /**
