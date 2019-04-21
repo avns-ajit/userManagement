@@ -90,6 +90,18 @@ class UserController extends AbstractController
 
 
     /**
+     * @Route("/list/all")
+     * @return Response
+     */
+    public function listUsers()
+    {
+        $users=$this->userManagementUtility->listUsers();
+        return $this->userManagementUtility->generateJsonResponse($users,Response::HTTP_OK);
+
+    }
+
+
+    /**
      * @param UserDTO $userDTO
      * @param $userId
      * @return UserResponse

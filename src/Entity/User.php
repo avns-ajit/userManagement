@@ -17,7 +17,7 @@ class  User extends BaseEntity {
     public $name;
 
     /**
-     * @ORM\Column(name="user_id",type="string", length=255)
+     * @ORM\Column(name="user_id",type="string", length=60)
      *
      */
     public $userId;

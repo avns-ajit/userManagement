@@ -12,6 +12,7 @@ use App\Repository\UserRepository;
 use App\Util\UserManagementUtility;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\SerializerInterface;
+use App\Repository\GroupRepository;
 
 class UserManagementUtilityTest extends TestCase
 {
@@ -25,9 +26,14 @@ class UserManagementUtilityTest extends TestCase
 
     private $userManagementUtility;
 
+    private $groupRepositoryMock;
+
     protected function setUp()
     {
         $this->userRepositoryMock = $this->getMockBuilder(UserRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->groupRepositoryMock = $this->getMockBuilder(GroupRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->roleRepositoryMock = $this->getMockBuilder(RoleRepository::class)
@@ -36,7 +42,7 @@ class UserManagementUtilityTest extends TestCase
         $this->serializerInterfaceMock = $this->getMockBuilder(SerializerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->userManagementUtility = new UserManagementUtility($this->userRepositoryMock, $this->roleRepositoryMock,$this->serializerInterfaceMock);
+        $this->userManagementUtility = new UserManagementUtility($this->userRepositoryMock, $this->roleRepositoryMock,$this->serializerInterfaceMock, $this->groupRepositoryMock);
     }
 
     /** @test */

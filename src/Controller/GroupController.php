@@ -123,6 +123,18 @@ class GroupController extends AbstractController
         return $this->userManagementUtility->generateJsonResponse($userGroupResponse,Response::HTTP_OK);
     }
 
+
+    /**
+     * @Route("/list/all")
+     * @return Response
+     */
+    public function listGroups()
+    {
+        $users=$this->userManagementUtility->listGroups();
+        return $this->userManagementUtility->generateJsonResponse($users,Response::HTTP_OK);
+
+    }
+
     /**
      * @param GroupDTO $groupDTO
      * @param $groupId

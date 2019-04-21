@@ -6,6 +6,7 @@ namespace App\Util;
 
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
+use App\Repository\GroupRepository;
 use App\Response\BaseResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -24,16 +25,22 @@ class UserManagementUtility
     private $roleRepository;
 
     /**
+     * @var GroupRepository
+     */
+    private $groupRepository;
+
+    /**
      * @var SerializerInterface
      */
     private $serializerInterface;
 
 
-    public function __construct(UserRepository $userRepository,RoleRepository $roleRepository,SerializerInterface $serializerInterface)
+    public function __construct(UserRepository $userRepository,RoleRepository $roleRepository,SerializerInterface $serializerInterface,GroupRepository $groupRepository)
     {
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
         $this->serializerInterface = $serializerInterface;
+        $this->groupRepository = $groupRepository;
 
     }
 
@@ -87,5 +94,15 @@ class UserManagementUtility
     {
         $seperator="_";
         return $type.$seperator.$action;
+    }
+
+    public function listUsers()
+    {
+        return $this->userRepository->findAll();
+    }
+
+    public function listGroups()
+    {
+        return $this->groupRepository->findAll();
     }
 }
