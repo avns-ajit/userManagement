@@ -10,9 +10,9 @@ Api's to manage Users and groups
 5. Admin can remove Users from Groups.
 6. Admin can add Users to the Group which they aren't already part of
 
-#API Documentation
+# API Documentation
 https://documenter.getpostman.com/view/402595/S1ETSGqK
 
-#API Collection
+# API Collection
 https://www.getpostman.com/collections/4c7674956fa384a126ad
 
