@@ -11,7 +11,7 @@ class DeleteUserDTO
 
     /**
      * @Type("string")
-     * @Assert\NotBlank(message="user id cannot be empty")
+     * @Assert\NotBlank(message="user cannot be empty")
      */
     private $user;
 

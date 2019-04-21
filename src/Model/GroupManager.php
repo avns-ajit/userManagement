@@ -70,6 +70,12 @@ class GroupManager implements GroupManagerInterface
         throw new UserManagementException(UserManagementConstants::NOT_AUTHORIZED,Response::HTTP_FORBIDDEN);
     }
 
+    /**
+     * @param DeleteGroupDTO $deleteGroupRequest
+     * @return mixed|void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
     public function deleteGroup(DeleteGroupDTO $deleteGroupRequest)
     {
         $group= $this->groupRepository->checkGroup($deleteGroupRequest->getGroup());

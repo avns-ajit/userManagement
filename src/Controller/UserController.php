@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Response\UserResponse;
 use App\Util\UserManagementUtility;
+use http\Exception\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;

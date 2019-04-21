@@ -12,7 +12,7 @@ class DeleteGroupDTO
 
     /**
      * @Type("string")
-     * @Assert\NotBlank(message="group id cannot be empty")
+     * @Assert\NotBlank(message="group cannot be empty")
      */
     private $group;
 

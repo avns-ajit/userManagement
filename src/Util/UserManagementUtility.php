@@ -96,11 +96,17 @@ class UserManagementUtility
         return $type.$seperator.$action;
     }
 
+    /**
+     * @return array
+     */
     public function listUsers()
     {
         return $this->userRepository->findAll();
     }
 
+    /**
+     * @return array
+     */
     public function listGroups()
     {
         return $this->groupRepository->findAll();
