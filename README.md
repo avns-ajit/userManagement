@@ -25,6 +25,10 @@ https://www.getpostman.com/collections/4c7674956fa384a126ad
 3. Run the user_management.sql to create the tables and it is also preloaded with relevant Permissions and Admin User.
 4. Admin UserId to start with - 49d324ea-6146-11e9-ad9d-24a074f0655e.
 
+# Run
+1. php -S 127.0.0.1:8000 -t public : To start the project
+2. php bin/console debug:router : To List all routes available
+
 # Permissions
 1. USER_CREATE - To Create Users.
 2. USER_DELETE - To Delete Users.
