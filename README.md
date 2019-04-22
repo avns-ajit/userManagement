@@ -36,3 +36,6 @@ https://www.getpostman.com/collections/4c7674956fa384a126ad
 # Roles
 1. ADMIN.
 2. USER.
+
+# Tests
+./vendor/bin/simple-phpunit 
