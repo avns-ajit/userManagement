@@ -16,10 +16,13 @@ https://documenter.getpostman.com/view/402595/S1ETSGqK
 # API Collection
 https://www.getpostman.com/collections/4c7674956fa384a126ad
 
+# Models
+1. PLease check DATABASE_MODEL.png for Database Model.
+2. Please check UserManagement_Model.png
+
 # Setup
-1. Please create DataBase name : user_management.
-2. Refer to DATABASE_MODEL.png for Database Model.
-3. Run the user_management.sql to create the tables and above is preloaded with relevant Permissions and Admin User.
+1. Please create Database with name : user_management.
+3. Run the user_management.sql to create the tables and it is also preloaded with relevant Permissions and Admin User.
 4. Admin UserId to start with - 49d324ea-6146-11e9-ad9d-24a074f0655e.
 
 # Permissions
